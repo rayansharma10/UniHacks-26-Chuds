@@ -12,6 +12,8 @@ export default function DilemmaCard({ dilemma }) {
   const [draft, setDraft] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const isOwner = user?.id === dilemma.user_id
+  const isAdmin = user?.is_admin
+  const canDelete = isOwner || isAdmin
 
   const deleteDilemma = useMutation({
     mutationFn: () => api.delete(`/dilemmas/${dilemma.id}`),
@@ -69,7 +71,7 @@ export default function DilemmaCard({ dilemma }) {
           </div>
           <div className="flex items-center gap-3">
             <CategoryBadge category={dilemma.category} />
-            {isOwner && (
+            {canDelete && (
               confirmDelete ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-[#888]">Delete?</span>

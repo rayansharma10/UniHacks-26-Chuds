@@ -8,12 +8,15 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get("/me")
 def me(current_user: models.User = Depends(get_current_user)):
+    from ..auth import is_admin_user
+
     return {
         "id": current_user.id,
         "username": current_user.username,
         "email": current_user.email,
         "points": current_user.points,
         "season_rank": current_user.season_rank,
+        "is_admin": is_admin_user(current_user),
     }
 
 @router.get("/leaderboard")

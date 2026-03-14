@@ -8,6 +8,15 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from . import models
 
+# Admin users can perform moderation actions like deleting posts.
+# Configure comma-separated list of admin usernames via environment variable.
+# Example: ADMIN_USERNAMES="admin,moderator"
+ADMIN_USERNAMES = [u.strip() for u in os.getenv("ADMIN_USERNAMES", "").split(",") if u.strip()]
+
+
+def is_admin_user(user: models.User) -> bool:
+    return user.username in ADMIN_USERNAMES
+
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-in-prod")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 1 week

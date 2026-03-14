@@ -12,14 +12,15 @@ class User(Base):
     season_rank = Column(Integer, nullable=True)
     created_at  = Column(DateTime(timezone=True), server_default=func.now())
 
-    dilemmas = relationship("Dilemma", back_populates="author")
-    votes    = relationship("Vote", back_populates="user")
-    comments = relationship("Comment", back_populates="user")
+    # Cascade deletes so removing a user also removes their content
+    dilemmas = relationship("Dilemma", back_populates="author", cascade="all, delete-orphan")
+    votes    = relationship("Vote", back_populates="user", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
 
 class Dilemma(Base):
     __tablename__ = "dilemmas"
     id         = Column(Integer, primary_key=True, index=True)
-    user_id    = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id    = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     content    = Column(Text, nullable=False)
     category   = Column(String, nullable=False)  # personal | community | civic
     outcome    = Column(Text, nullable=True)
@@ -27,14 +28,14 @@ class Dilemma(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     author   = relationship("User", back_populates="dilemmas")
-    votes    = relationship("Vote", back_populates="dilemma")
-    comments = relationship("Comment", back_populates="dilemma")
+    votes    = relationship("Vote", back_populates="dilemma", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="dilemma", cascade="all, delete-orphan")
 
 class Vote(Base):
     __tablename__ = "votes"
     id            = Column(Integer, primary_key=True, index=True)
-    user_id       = Column(Integer, ForeignKey("users.id"), nullable=False)
-    dilemma_id    = Column(Integer, ForeignKey("dilemmas.id"), nullable=False)
+    user_id       = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    dilemma_id    = Column(Integer, ForeignKey("dilemmas.id", ondelete="CASCADE"), nullable=False)
     choice        = Column(String, nullable=False)  # yes | no
     points_earned = Column(Integer, default=10)
     created_at    = Column(DateTime(timezone=True), server_default=func.now())
@@ -45,8 +46,8 @@ class Vote(Base):
 class Comment(Base):
     __tablename__ = "comments"
     id         = Column(Integer, primary_key=True, index=True)
-    user_id    = Column(Integer, ForeignKey("users.id"), nullable=False)
-    dilemma_id = Column(Integer, ForeignKey("dilemmas.id"), nullable=False)
+    user_id    = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    dilemma_id = Column(Integer, ForeignKey("dilemmas.id", ondelete="CASCADE"), nullable=False)
     content    = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
