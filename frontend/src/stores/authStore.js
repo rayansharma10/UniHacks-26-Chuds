@@ -20,7 +20,7 @@ export const useAuthStore = create((set) => ({
   logout: () => {
     localStorage.removeItem('token')
     set({ user: null, token: null })
-    window.location.href = '/auth'
+    if (!window.location.pathname.includes('/auth')) window.location.href = '/auth'
   },
 
   fetchMe: async () => {

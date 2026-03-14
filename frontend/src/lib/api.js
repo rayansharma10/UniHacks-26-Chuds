@@ -14,11 +14,9 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Token is invalid/expired, logout user
+    if (error.response?.status === 401 && !window.location.pathname.includes('/auth')) {
       localStorage.removeItem('token')
       useAuthStore.getState().logout()
-      window.location.href = '/auth'
     }
     return Promise.reject(error)
   }
