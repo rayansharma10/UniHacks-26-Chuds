@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.services.database import create_db_and_tables
-from app.routers import users, decisions, comments, votes, leaderboard, about, communities
+from app.routers import users, decisions, comments, votes, leaderboard, about, communities, auth
 
 
 @asynccontextmanager
@@ -29,6 +29,7 @@ app.add_middleware(
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
+app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(decisions.router)
 app.include_router(comments.router)

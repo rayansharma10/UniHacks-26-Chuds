@@ -3,6 +3,7 @@ uvicorn==0.30.6
 sqlmodel==0.0.21
 sqlalchemy==2.0.35
 psycopg[binary]==3.2.3
+psycopg2-binary==2.9.9
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1

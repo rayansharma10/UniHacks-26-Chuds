@@ -1,15 +1,21 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from ..database import get_db
-from ..auth import get_current_user
-from .. import models
+from sqlmodel import Session, select
+from app.services.database import get_session
+from app.services.models import User
+from app.services.auth import get_current_user
+import os
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter()
 
-@router.get("/me")
-def me(current_user: models.User = Depends(get_current_user)):
-    from ..auth import is_admin_user
+ADMIN_USERNAMES = set(os.getenv("ADMIN_USERNAMES", "").split(","))
 
+
+def is_admin_user(user: User) -> bool:
+    return user.username in ADMIN_USERNAMES
+
+
+@router.get("/users/me")
+def me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
         "username": current_user.username,
@@ -19,7 +25,8 @@ def me(current_user: models.User = Depends(get_current_user)):
         "is_admin": is_admin_user(current_user),
     }
 
-@router.get("/leaderboard")
-def leaderboard(db: Session = Depends(get_db)):
-    users = db.query(models.User).order_by(models.User.points.desc()).limit(20).all()
+
+@router.get("/users/leaderboard")
+def leaderboard(session: Session = Depends(get_session)):
+    users = session.exec(select(User).order_by(User.points.desc()).limit(20)).all()
     return [{"id": u.id, "username": u.username, "points": u.points, "season_rank": u.season_rank} for u in users]
