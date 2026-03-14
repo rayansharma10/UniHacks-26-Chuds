@@ -1,5 +1,5 @@
 import uuid
-import boto3
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Form, UploadFile, File
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -15,24 +15,22 @@ R2_SECRET_KEY = os.getenv("R2_SECRET_KEY")
 R2_BUCKET     = os.getenv("R2_BUCKET", "unihacks26")
 R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
 
-def get_s3():
-    return boto3.client(
-        "s3",
-        endpoint_url=f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
-        aws_access_key_id=R2_ACCESS_KEY,
-        aws_secret_access_key=R2_SECRET_KEY,
-        region_name="auto",
-        verify=False,
-    )
+async def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
+    url = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{R2_BUCKET}/{key}"
+    async with httpx.AsyncClient(verify=False) as client:
+        r = await client.put(
+            url, content=data,
+            headers={"Content-Type": content_type},
+            auth=(R2_ACCESS_KEY, R2_SECRET_KEY),
+        )
+        if r.status_code not in (200, 201):
+            raise HTTPException(500, f"R2 upload failed: {r.text}")
+    return f"{R2_PUBLIC_URL}/{key}"
 
 router = APIRouter(prefix="/dilemmas", tags=["dilemmas"])
 
-class DilemmaBody(BaseModel):
-    content: str
-    category: str
-
 class VoteBody(BaseModel):
-    choice: str  # yes | no
+    choice: str
 
 class OutcomeBody(BaseModel):
     outcome: str
@@ -72,9 +70,8 @@ async def create_dilemma(content: str = Form(...), category: str = Form(...), im
     if image and image.filename:
         ext = image.filename.rsplit('.', 1)[-1]
         key = f"dilemmas/{uuid.uuid4()}.{ext}"
-        s3 = get_s3()
-        s3.upload_fileobj(image.file, R2_BUCKET, key, ExtraArgs={"ContentType": image.content_type})
-        image_url = f"{R2_PUBLIC_URL}/{key}"
+        data = await image.read()
+        image_url = await upload_to_r2(data, key, image.content_type)
     d = models.Dilemma(user_id=current_user.id, content=content, category=category, image_url=image_url)
     db.add(d)
     db.commit()
@@ -89,8 +86,8 @@ def vote(dilemma_id: int, body: VoteBody, db: Session = Depends(get_db), current
     existing = db.query(models.Vote).filter_by(user_id=current_user.id, dilemma_id=dilemma_id).first()
     if existing:
         raise HTTPException(400, "Already voted")
-    vote = models.Vote(user_id=current_user.id, dilemma_id=dilemma_id, choice=body.choice, points_earned=10)
-    db.add(vote)
+    v = models.Vote(user_id=current_user.id, dilemma_id=dilemma_id, choice=body.choice, points_earned=10)
+    db.add(v)
     current_user.points += 10
     db.commit()
     db.refresh(d)
