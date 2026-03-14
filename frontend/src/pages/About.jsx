@@ -5,6 +5,206 @@ import { Globe } from '../components/ui/globe';
 import { AuroraBackground } from '../components/ui/aurora-background';
 import { Brain, Users, Shield, Flame } from 'lucide-react';
 
+// Each word: text, font, resting position (top/left as %), entry origin (x/y in vw/vh units),
+// exit direction (x/y), scroll window [in, peak-start, peak-end, out], rotation, size, color, flyThrough
+const WORDS = [
+  {
+    text: 'choose',
+    font: 'Brush Script MT, cursive',
+    top: '12%', left: '8%',
+    fromX: '-120vw', fromY: '-30vh',
+    toX: '110vw',  toY: '-60vh',
+    scroll: [0, 0.03, 0.07, 0.12],
+    rotate: [-18, -4],
+    size: '3.2rem',
+    color: '#ff6b4a',
+    flyThrough: true,
+  },
+  {
+    text: 'TRUTH',
+    font: 'Verdana, sans-serif',
+    top: '78%', left: '82%',
+    fromX: '130vw', fromY: '80vh',
+    toX: null, toY: null,
+    scroll: [0.01, 0.06, 0.13, 0.13],
+    rotate: [12, 3],
+    size: '1.4rem',
+    color: '#ffffff',
+    flyThrough: false,
+  },
+  {
+    text: 'or dare',
+    font: 'Brush Script MT, cursive',
+    top: '55%', left: '88%',
+    fromX: '140vw', fromY: '20vh',
+    toX: '150vw', toY: '-40vh',
+    scroll: [0.005, 0.04, 0.08, 0.13],
+    rotate: [8, -2],
+    size: '2.6rem',
+    color: '#6b4aff',
+    flyThrough: true,
+  },
+  {
+    text: 'DECIDE',
+    font: 'Verdana, sans-serif',
+    top: '22%', left: '75%',
+    fromX: '120vw', fromY: '-70vh',
+    toX: null, toY: null,
+    scroll: [0.02, 0.07, 0.13, 0.13],
+    rotate: [-6, 0],
+    size: '2rem',
+    color: '#2bf06d',
+    flyThrough: false,
+  },
+  {
+    text: 'what if',
+    font: 'Brush Script MT, cursive',
+    top: '85%', left: '15%',
+    fromX: '-130vw', fromY: '90vh',
+    toX: '-140vw', toY: '100vh',
+    scroll: [0, 0.04, 0.09, 0.13],
+    rotate: [20, 6],
+    size: '3.8rem',
+    color: '#ff4a6b',
+    flyThrough: true,
+  },
+  {
+    text: 'MORAL',
+    font: 'Verdana, sans-serif',
+    top: '40%', left: '4%',
+    fromX: '-120vw', fromY: '10vh',
+    toX: null, toY: null,
+    scroll: [0.015, 0.055, 0.13, 0.13],
+    rotate: [-3, 2],
+    size: '1.6rem',
+    color: '#ffffff80',
+    flyThrough: false,
+  },
+  {
+    text: 'always',
+    font: 'Brush Script MT, cursive',
+    top: '6%', left: '55%',
+    fromX: '20vw', fromY: '-110vh',
+    toX: '80vw', toY: '-120vh',
+    scroll: [0, 0.035, 0.075, 0.12],
+    rotate: [-12, 5],
+    size: '2.8rem',
+    color: '#61DAFB',
+    flyThrough: true,
+  },
+  {
+    text: 'ETHICS',
+    font: 'Verdana, sans-serif',
+    top: '68%', left: '60%',
+    fromX: '50vw', fromY: '120vh',
+    toX: null, toY: null,
+    scroll: [0.025, 0.07, 0.13, 0.13],
+    rotate: [5, -1],
+    size: '1.8rem',
+    color: '#ffffff60',
+    flyThrough: false,
+  },
+  {
+    text: 'never',
+    font: 'Brush Script MT, cursive',
+    top: '30%', left: '90%',
+    fromX: '130vw', fromY: '-10vh',
+    toX: '140vw', toY: '80vh',
+    scroll: [0.01, 0.05, 0.085, 0.125],
+    rotate: [15, -8],
+    size: '3rem',
+    color: '#ff6b4a99',
+    flyThrough: true,
+  },
+  {
+    text: 'PARALLEL',
+    font: 'Verdana, sans-serif',
+    top: '92%', left: '45%',
+    fromX: '-10vw', fromY: '130vh',
+    toX: null, toY: null,
+    scroll: [0.03, 0.075, 0.13, 0.13],
+    rotate: [-2, 1],
+    size: '1.2rem',
+    color: '#ffffff40',
+    flyThrough: false,
+  },
+  {
+    text: 'maybe',
+    font: 'Brush Script MT, cursive',
+    top: '48%', left: '-2%',
+    fromX: '-130vw', fromY: '-50vh',
+    toX: '-150vw', toY: '30vh',
+    scroll: [0.005, 0.045, 0.08, 0.115],
+    rotate: [-22, 10],
+    size: '4rem',
+    color: '#6b4aff80',
+    flyThrough: true,
+  },
+  {
+    text: 'VOTE',
+    font: 'Verdana, sans-serif',
+    top: '15%', left: '38%',
+    fromX: '-60vw', fromY: '-120vh',
+    toX: null, toY: null,
+    scroll: [0.02, 0.065, 0.13, 0.13],
+    rotate: [8, -3],
+    size: '2.4rem',
+    color: '#2bf06d80',
+    flyThrough: false,
+  },
+];
+
+function FlyWord({ word, scrollYProgress }) {
+  const { scroll, fromX, fromY, toX, toY, flyThrough, rotate } = word;
+
+  const xVals = flyThrough
+    ? [fromX, '0vw', '0vw', toX]
+    : [fromX, '0vw', '0vw', '0vw'];
+  const yVals = flyThrough
+    ? [fromY, '0vh', '0vh', toY]
+    : [fromY, '0vh', '0vh', '0vh'];
+  const opacityVals = flyThrough
+    ? [0, 1, 0.85, 0]
+    : [0, 1, 1, 0];
+  const rotateVals = [rotate[0], rotate[1], rotate[1], flyThrough ? rotate[0] * -0.5 : rotate[1]];
+
+  const x = useTransform(scrollYProgress, scroll, xVals);
+  const y = useTransform(scrollYProgress, scroll, yVals);
+  const opacity = useTransform(scrollYProgress, scroll, opacityVals);
+  const rotateZ = useTransform(scrollYProgress, scroll, rotateVals);
+
+  return (
+    <motion.span
+      style={{
+        position: 'absolute',
+        top: word.top,
+        left: word.left,
+        x, y, opacity, rotateZ,
+        fontFamily: word.font,
+        fontSize: word.size,
+        color: word.color,
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        userSelect: 'none',
+        willChange: 'transform, opacity',
+        textShadow: '0 2px 20px rgba(0,0,0,0.6)',
+      }}
+    >
+      {word.text}
+    </motion.span>
+  );
+}
+
+function FlyingWords({ scrollYProgress }) {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]">
+      {WORDS.map((w, i) => (
+        <FlyWord key={i} word={w} scrollYProgress={scrollYProgress} />
+      ))}
+    </div>
+  );
+}
+
 export default function About() {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -64,6 +264,9 @@ export default function About() {
 
         {/* Base dark noise overlay */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
+
+        {/* Flying Words Layer */}
+        <FlyingWords scrollYProgress={scrollYProgress} />
 
         {/* Section 1: Hero */}
         <motion.div 
