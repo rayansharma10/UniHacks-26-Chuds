@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ThumbsUp, ThumbsDown, Send, Loader2 } from 'lucide-react'
+import { ThumbsUp, ThumbsDown, Send, Loader2, Trash2 } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '../lib/api'
 import CategoryBadge from './CategoryBadge'
@@ -10,6 +10,16 @@ export default function DilemmaCard({ dilemma }) {
   const qc = useQueryClient()
   const { user } = useAuthStore()
   const [draft, setDraft] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const isOwner = user?.id === dilemma.user_id
+
+  const deleteDilemma = useMutation({
+    mutationFn: () => api.delete(`/dilemmas/${dilemma.id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['feed'] })
+      qc.invalidateQueries({ queryKey: ['my-dilemmas'] })
+    },
+  })
 
   const vote = useMutation({
     mutationFn: (choice) => api.post(`/dilemmas/${dilemma.id}/vote`, { choice }),
@@ -33,6 +43,7 @@ export default function DilemmaCard({ dilemma }) {
   const noCount = dilemma.votes_no ?? 0
   const total = yesCount + noCount || 1
   const yesPct = Math.round((yesCount / total) * 100)
+  const myVote = vote.data?.data?.dilemma?.user_vote ?? dilemma.user_vote
 
   return (
     <motion.div
@@ -56,11 +67,49 @@ export default function DilemmaCard({ dilemma }) {
               </p>
             </div>
           </div>
-          <CategoryBadge category={dilemma.category} />
+          <div className="flex items-center gap-3">
+            <CategoryBadge category={dilemma.category} />
+            {isOwner && (
+              confirmDelete ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-[#888]">Delete?</span>
+                  <button
+                    onClick={() => deleteDilemma.mutate()}
+                    disabled={deleteDilemma.isPending}
+                    className="text-xs text-red-400 hover:text-red-300 font-semibold transition-colors"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    className="text-xs text-[#888] hover:text-white transition-colors"
+                  >
+                    No
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="p-1.5 rounded-lg text-[#555] hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )
+            )}
+          </div>
         </div>
 
         {/* Dilemma text */}
         <p className="text-xl leading-relaxed font-medium flex-1">{dilemma.content}</p>
+
+        {/* Image */}
+        {dilemma.image_url && (
+          <img
+            src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${dilemma.image_url}`}
+            alt="dilemma"
+            className="w-full max-h-72 object-cover rounded-xl border border-[#2a2a2a]"
+          />
+        )}
 
         {/* Vote bar */}
         <div className="flex flex-col gap-2">
@@ -82,16 +131,24 @@ export default function DilemmaCard({ dilemma }) {
           <button
             onClick={() => vote.mutate('yes')}
             disabled={vote.isPending}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#ff6b4a]/10 text-[#ff6b4a] font-semibold text-base hover:bg-[#ff6b4a]/20 transition-colors disabled:opacity-50"
+            className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-base transition-colors disabled:opacity-50 ${
+              myVote === 'yes'
+                ? 'bg-[#ff6b4a] text-white ring-2 ring-[#ff6b4a]/50'
+                : 'bg-[#ff6b4a]/10 text-[#ff6b4a] hover:bg-[#ff6b4a]/20'
+            }`}
           >
-            <ThumbsUp size={18} /> Yes
+            <ThumbsUp size={18} fill={myVote === 'yes' ? 'currentColor' : 'none'} /> Yes
           </button>
           <button
             onClick={() => vote.mutate('no')}
             disabled={vote.isPending}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/5 text-[#f0f0f0] font-semibold text-base hover:bg-white/10 transition-colors disabled:opacity-50"
+            className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-base transition-colors disabled:opacity-50 ${
+              myVote === 'no'
+                ? 'bg-white/20 text-white ring-2 ring-white/30'
+                : 'bg-white/5 text-[#f0f0f0] hover:bg-white/10'
+            }`}
           >
-            <ThumbsDown size={18} /> No
+            <ThumbsDown size={18} fill={myVote === 'no' ? 'currentColor' : 'none'} /> No
           </button>
         </div>
 
