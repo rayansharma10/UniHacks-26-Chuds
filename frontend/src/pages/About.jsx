@@ -2,6 +2,8 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Marquee } from '../components/ui/marquee';
 import { Globe } from '../components/ui/globe';
+import { AuroraBackground } from '../components/ui/aurora-background';
+import DisplayCards from '../components/ui/display-cards';
 import { Brain, Users, Shield, Flame } from 'lucide-react';
 
 export default function About() {
@@ -47,19 +49,22 @@ export default function About() {
         {/* Section 1: Hero */}
         <motion.div 
           style={{ opacity: section1Opacity, scale: section1Scale, y: section1Y }}
-          className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pointer-events-none"
+          className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
         >
-          {/* Globe Background */}
-          <div className="absolute inset-x-0 bottom-[-20%] md:bottom-[-40%] z-0 flex items-center justify-center opacity-40 pointer-events-auto mix-blend-screen overflow-hidden">
-             <Globe className="scale-125 md:scale-150" />
-          </div>
+          <AuroraBackground className="absolute inset-0 z-0 h-screen w-full rounded-none px-4">
+            {/* Globe Background */}
+            <div className="absolute inset-x-0 bottom-[-20%] md:bottom-[-40%] z-0 flex items-center justify-center opacity-40 mix-blend-screen overflow-hidden pointer-events-none w-full max-w-[800px] mx-auto aspect-[1/1]">
+              <div className="w-full h-full pointer-events-auto flex items-center justify-center">
+                <Globe className="scale-125 md:scale-150 w-full h-full" />
+              </div>
+            </div>
 
-          <motion.div
-             className="relative z-10"
-             initial={{ scale: 0.9, opacity: 0 }}
-             animate={{ scale: 1, opacity: 1 }}
-             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-          >
+            <motion.div
+               className="relative z-10 w-full"
+               initial={{ scale: 0.9, opacity: 0 }}
+               animate={{ scale: 1, opacity: 1 }}
+               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+            >
             <h1 className="text-[5rem] md:text-[9rem] font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-neutral-500">
               PARALLEL
             </h1>
@@ -99,11 +104,12 @@ export default function About() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 2 }}
-            className="absolute bottom-12 flex flex-col items-center gap-4"
+            className="absolute bottom-12 flex flex-col items-center gap-4 z-10"
           >
             <span className="text-xs uppercase tracking-[0.3em] text-neutral-500 font-medium tracking-widest">Scroll to Journey</span>
             <div className="w-[1px] h-20 bg-gradient-to-b from-neutral-500 to-transparent" />
           </motion.div>
+          </AuroraBackground>
         </motion.div>
 
         {/* Section 2: Features */}
@@ -119,20 +125,36 @@ export default function About() {
             <span className="text-white font-medium"> Parallel </span> 
             brings these dilemmas to light. Vote, debate, and see where you stand among thousands of thinkers.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 w-full max-w-6xl mx-auto">
-            {[
-              { title: "Personal", desc: "Intimate and introspective problems.", icon: "💭" },
-              { title: "Community", desc: "Issues affecting your local circle.", icon: "🤝" },
-              { title: "Civic", desc: "Societal and grand-scale dilemmas.", icon: "🏛️" }
-            ].map((feature, i) => (
-              <div key={i} className="bg-white/[0.03] border border-white/10 backdrop-blur-xl rounded-3xl p-8 transform-gpu shadow-2xl">
-                <div className="text-4xl mb-6 bg-white/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">{feature.icon}</div>
-                <h3 className="text-2xl font-bold mb-3 text-white">
-                  {feature.title}
-                </h3>
-                <p className="text-neutral-400 font-light text-sm">{feature.desc}</p>
-              </div>
-            ))}
+          <div className="mt-16 w-full max-w-4xl mx-auto flex items-center justify-center min-h-[400px]">
+            <DisplayCards cards={[
+               {
+                 icon: <Users className="size-5 text-[#ff6b4a]" />,
+                 title: "Personal",
+                 description: "Intimate and introspective problems.",
+                 date: "Explore Now",
+                 iconClassName: "text-[#ff6b4a]",
+                 titleClassName: "text-white",
+                 className: "[grid-area:stack] hover:-translate-y-10 before:absolute before:w-[100%] before:outline-1 before:rounded-xl before:outline-white/10 before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/50 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration:700 hover:grayscale-0 before:left-0 before:top-0 border-[#ff6b4a]/30",
+               },
+               {
+                 icon: <Brain className="size-5 text-[#6b4aff]" />,
+                 title: "Community",
+                 description: "Issues affecting your local circle.",
+                 date: "Discover",
+                 iconClassName: "text-[#6b4aff]",
+                 titleClassName: "text-white",
+                 className: "[grid-area:stack] translate-x-12 translate-y-10 hover:-translate-y-1 before:absolute before:w-[100%] before:outline-1 before:rounded-xl before:outline-white/10 before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/50 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration:700 hover:grayscale-0 before:left-0 before:top-0 border-[#6b4aff]/30",
+               },
+               {
+                 icon: <Shield className="size-5 text-[#2bf06d]" />,
+                 title: "Civic",
+                 description: "Societal and grand-scale dilemmas.",
+                 date: "Debate",
+                 iconClassName: "text-[#2bf06d]",
+                 titleClassName: "text-white",
+                 className: "[grid-area:stack] translate-x-24 translate-y-20 hover:translate-y-10 border-[#2bf06d]/30",
+               },
+            ]} />
           </div>
         </motion.div>
 

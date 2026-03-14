@@ -12,6 +12,17 @@
 
   --font-sans: 'Inter', system-ui, sans-serif;
   --radius-card: 1.25rem;
+
+  --animate-aurora: aurora 60s linear infinite;
+  
+  --color-blue-500: #3b82f6;
+  --color-blue-400: #60a5fa;
+  --color-blue-300: #93c5fd;
+  --color-indigo-300: #a5b4fc;
+  --color-violet-200: #ddd6fe;
+  --color-black: #000;
+  --color-white: #fff;
+  --color-transparent: transparent;
 }
 
 * {
@@ -28,4 +39,9 @@ body {
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+@keyframes aurora {
+  from { background-position: 50% 50%, 50% 50%; }
+  to { background-position: 350% 50%, 350% 50%; }
 }
