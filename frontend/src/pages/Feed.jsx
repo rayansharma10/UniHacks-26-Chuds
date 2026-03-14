@@ -18,19 +18,19 @@ export default function Feed() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-4 pt-12 pb-3 bg-[#0f0f0f] sticky top-0 z-10">
-        <h1 className="text-xl font-bold mb-3">
-          <span className="text-[#ff6b4a]">Parallel</span>
-        </h1>
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+      <div className="px-6 pt-8 pb-4 bg-[#0f0f0f] sticky top-0 z-10 border-b border-[#2a2a2a]">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-lg font-bold">Feed</h1>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {CATEGORIES.map((c) => (
             <button
               key={c}
               onClick={() => setCategory(c)}
-              className={`shrink-0 px-3 py-1 rounded-full text-sm font-medium transition-colors capitalize ${
+              className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors capitalize ${
                 category === c
                   ? 'bg-[#ff6b4a] text-white'
-                  : 'bg-[#1a1a1a] text-[#888] hover:text-white'
+                  : 'bg-[#1a1a1a] text-[#888] hover:text-white border border-[#2a2a2a]'
               }`}
             >
               {c}
@@ -40,7 +40,7 @@ export default function Feed() {
       </div>
 
       {/* Feed */}
-      <div className="flex-1 overflow-y-auto px-4 pb-24 flex flex-col gap-4 pt-4 snap-y snap-mandatory">
+      <div className="flex-1 overflow-y-auto px-6 pb-20 md:pb-8 flex flex-col gap-4 pt-6">
         {isLoading && (
           <div className="flex justify-center pt-16">
             <Loader2 className="animate-spin text-[#ff6b4a]" size={28} />

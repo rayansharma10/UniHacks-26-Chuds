@@ -21,14 +21,14 @@ export default function Post() {
   })
 
   return (
-    <div className="flex flex-col px-4 pt-12 pb-24 gap-6">
+    <div className="px-6 pt-8 pb-20 md:pb-8 flex flex-col gap-6 max-w-xl">
       <h2 className="text-xl font-bold">Post a Dilemma</h2>
 
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="What's your dilemma? Be specific — the community will vote on it."
-        rows={5}
+        rows={6}
         className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 text-sm text-[#f0f0f0] placeholder-[#555] resize-none focus:outline-none focus:border-[#ff6b4a] transition-colors"
       />
 
@@ -39,7 +39,7 @@ export default function Post() {
             <button
               key={c}
               onClick={() => setCategory(c)}
-              className={`flex-1 py-2 rounded-xl text-sm font-medium capitalize transition-colors ${
+              className={`flex-1 py-2.5 rounded-xl text-sm font-medium capitalize transition-colors ${
                 category === c
                   ? 'bg-[#ff6b4a] text-white'
                   : 'bg-[#1a1a1a] text-[#888] hover:text-white border border-[#2a2a2a]'
@@ -52,7 +52,7 @@ export default function Post() {
       </div>
 
       {category === 'civic' && (
-        <div className="bg-[#ff6b4a]/10 border border-[#ff6b4a]/20 rounded-xl p-3 text-sm text-[#f0f0f0]">
+        <div className="bg-[#ff6b4a]/10 border border-[#ff6b4a]/20 rounded-xl p-4 text-sm text-[#f0f0f0]">
           🏛️ Civic dilemmas get synthesised by AI into formal recommendations for government teams.
         </div>
       )}
@@ -60,7 +60,7 @@ export default function Post() {
       <button
         onClick={() => post.mutate()}
         disabled={!content.trim() || post.isPending}
-        className="py-3 rounded-xl bg-[#ff6b4a] text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity"
+        className="py-3 rounded-xl bg-[#ff6b4a] text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity hover:bg-[#cc5239]"
       >
         {post.isPending && <Loader2 size={16} className="animate-spin" />}
         Post Dilemma
