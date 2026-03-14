@@ -10,6 +10,7 @@ import Leaderboard from './pages/Leaderboard'
 import Profile from './pages/Profile'
 import Auth from './pages/Auth'
 import AI from './pages/AI'
+import About from './pages/About'
 
 export default function App() {
   const { token, user, fetchMe } = useAuthStore()
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/post" element={<Post />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/about" element={<About />} />
             <Route path="/ai" element={<AI />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
