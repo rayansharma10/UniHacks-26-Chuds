@@ -27,7 +27,6 @@ export default function App() {
 
       {/* Main content */}
       <main className="flex-1 min-w-0 flex flex-col">
-        <div className="max-w-2xl w-full mx-auto flex-1 flex flex-col">
           <Routes>
             <Route path="/" element={<Feed />} />
             <Route path="/post" element={<Post />} />
@@ -35,7 +34,6 @@ export default function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
-        </div>
       </main>
 
       <RightPanel />

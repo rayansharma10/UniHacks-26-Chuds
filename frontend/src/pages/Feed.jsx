@@ -40,7 +40,7 @@ export default function Feed() {
       </div>
 
       {/* Feed */}
-      <div className="flex-1 overflow-y-auto px-6 pb-20 md:pb-8 flex flex-col gap-4 pt-6">
+      <div className="flex-1 overflow-y-auto px-4 pb-20 md:pb-8 flex flex-col gap-6 pt-6">
         {isLoading && (
           <div className="flex justify-center pt-16">
             <Loader2 className="animate-spin text-[#ff6b4a]" size={28} />
