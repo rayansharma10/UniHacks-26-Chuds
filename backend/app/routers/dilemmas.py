@@ -1,5 +1,5 @@
 import uuid
-import httpx
+import requests
 from fastapi import APIRouter, Depends, HTTPException, Form, UploadFile, File
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -15,16 +15,16 @@ R2_SECRET_KEY = os.getenv("R2_SECRET_KEY")
 R2_BUCKET     = os.getenv("R2_BUCKET", "unihacks26")
 R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
 
-async def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
+def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
     url = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{R2_BUCKET}/{key}"
-    async with httpx.AsyncClient(verify=False) as client:
-        r = await client.put(
-            url, content=data,
-            headers={"Content-Type": content_type},
-            auth=(R2_ACCESS_KEY, R2_SECRET_KEY),
-        )
-        if r.status_code not in (200, 201):
-            raise HTTPException(500, f"R2 upload failed: {r.text}")
+    r = requests.put(
+        url, data=data,
+        headers={"Content-Type": content_type},
+        auth=(R2_ACCESS_KEY, R2_SECRET_KEY),
+        verify=False,
+    )
+    if r.status_code not in (200, 201):
+        raise HTTPException(500, f"R2 upload failed: {r.text}")
     return f"{R2_PUBLIC_URL}/{key}"
 
 router = APIRouter(prefix="/dilemmas", tags=["dilemmas"])
@@ -71,7 +71,7 @@ async def create_dilemma(content: str = Form(...), category: str = Form(...), im
         ext = image.filename.rsplit('.', 1)[-1]
         key = f"dilemmas/{uuid.uuid4()}.{ext}"
         data = await image.read()
-        image_url = await upload_to_r2(data, key, image.content_type)
+        image_url = upload_to_r2(data, key, image.content_type)
     d = models.Dilemma(user_id=current_user.id, content=content, category=category, image_url=image_url)
     db.add(d)
     db.commit()
