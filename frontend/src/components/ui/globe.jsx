@@ -66,25 +66,37 @@ export function Globe({ className, config = GLOBE_CONFIG }) {
     [r],
   )
 
-  const onResize = () => {
-    if (canvasRef.current) {
-      width = canvasRef.current.offsetWidth
-    }
-  }
-
   useEffect(() => {
-    window.addEventListener("resize", onResize)
-    onResize()
+    let width = 0;
+    const onResize = () => {
+      if (canvasRef.current && canvasRef.current.offsetWidth > 0) {
+        width = canvasRef.current.offsetWidth;
+      }
+    };
+
+    window.addEventListener("resize", onResize);
+    onResize();
+
+    // If container forces 0 width, supply a safe fallback so the WebGL context doesn't die.
+    if (width === 0) width = 600;
 
     const globe = createGlobe(canvasRef.current, {
       ...config,
       width: width * 2,
       height: width * 2,
       onRender,
-    })
+    });
 
-    setTimeout(() => (canvasRef.current.style.opacity = "1"))
-    return () => globe.destroy()
+    requestAnimationFrame(() => {
+        if (canvasRef.current) {
+            canvasRef.current.style.opacity = "1";
+        }
+    });
+
+    return () => {
+        window.removeEventListener("resize", onResize);
+        globe.destroy();
+    }
   }, [])
 
   return (
