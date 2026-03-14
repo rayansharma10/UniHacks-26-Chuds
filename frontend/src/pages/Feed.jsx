@@ -21,7 +21,7 @@ export default function Feed() {
     queryFn: () => {
       const params = {}
       if (category !== 'all') params.category = category
-      if (community) params.community = community
+      if (community) params.community_slug = community
       return api.get('/dilemmas', { params }).then((r) => r.data)
     },
   })
