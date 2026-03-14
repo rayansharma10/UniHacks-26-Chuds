@@ -13,6 +13,7 @@ export default function Post() {
   const [preview, setPreview] = useState(null)
   const fileRef = useRef()
   const navigate = useNavigate()
+  const qc = useQueryClient()
   const [testResult, setTestResult] = useState(null)
 
   const testConnection = useMutation({

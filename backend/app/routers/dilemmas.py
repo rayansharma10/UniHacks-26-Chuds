@@ -28,46 +28,32 @@ R2_BUCKET     = os.getenv("R2_BUCKET_NAME", "unihacks26")
 R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
 
 def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
-    """Upload file to R2 using direct HTTP requests"""
+    """Upload file to R2 using boto3"""
     try:
-        import requests
-        from botocore.auth import SigV4Auth
-        from botocore.awsrequest import AWSRequest
-        from botocore.credentials import Credentials
+        import boto3
+        from botocore.exceptions import ClientError
         
-        url = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{R2_BUCKET}/{key}"
-        
-        # Create AWS request for signing
-        aws_request = AWSRequest(
-            method='PUT',
-            url=url,
-            headers={
-                'Host': f"{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
-                'Content-Type': content_type
-            },
-            body=data
+        s3_client = boto3.client(
+            's3',
+            endpoint_url=f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+            aws_access_key_id=R2_ACCESS_KEY,
+            aws_secret_access_key=R2_SECRET_KEY,
+            region_name='auto',
+            config=Config(signature_version='s3v4')
         )
         
-        # Sign the request
-        credentials = Credentials(
-            access_key=R2_ACCESS_KEY,
-            secret_key=R2_SECRET_KEY
+        s3_client.put_object(
+            Bucket=R2_BUCKET,
+            Key=key,
+            Body=data,
+            ContentType=content_type
         )
-        auth = SigV4Auth(
-            credentials=credentials,
-            service_name='s3',
-            region_name='auto'
-        )
-        auth.add_auth(aws_request)
-        
-        # Make the upload request
-        response = requests.put(url, data=data, headers=dict(aws_request.headers))
-        
-        if response.status_code not in [200, 201]:
-            raise HTTPException(500, f"R2 upload failed: HTTP {response.status_code} - {response.text}")
         
         return f"{R2_PUBLIC_URL}/unihacks26/dilemmas/{key}"
         
+    except ClientError as e:
+        logging.error(f"R2 upload failed: {str(e)}")
+        raise HTTPException(500, f"R2 upload failed: {str(e)}")
     except Exception as e:
         logging.error(f"R2 upload failed: {str(e)}")
         raise HTTPException(500, f"R2 upload failed: {str(e)}")
