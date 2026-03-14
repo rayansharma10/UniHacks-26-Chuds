@@ -22,6 +22,7 @@ def get_s3():
         aws_access_key_id=R2_ACCESS_KEY,
         aws_secret_access_key=R2_SECRET_KEY,
         region_name="auto",
+        verify=False,
     )
 
 router = APIRouter(prefix="/dilemmas", tags=["dilemmas"])
