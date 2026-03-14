@@ -137,7 +137,9 @@ export default function Post() {
       </button>
 
       {post.isError && (
-        <p className="text-red-400 text-sm text-center">Failed to post. Are you logged in?</p>
+        <p className="text-red-400 text-sm text-center">
+          Failed to post: {post.error?.response?.data?.detail || post.error?.message || 'Unknown error'}. Are you logged in?
+        </p>
       )}
     </div>
   )
