@@ -10,6 +10,14 @@ from ..database import get_db
 from ..auth import get_current_user
 from .. import models
 import os
+import logging
+
+# Log R2 configuration on startup
+logging.info(f"R2_ACCOUNT_ID: {os.getenv('R2_ACCOUNT_ID', 'NOT SET')}")
+logging.info(f"R2_ACCESS_KEY_ID: {'SET' if os.getenv('R2_ACCESS_KEY_ID') else 'NOT SET'}")
+logging.info(f"R2_SECRET_ACCESS_KEY: {'SET' if os.getenv('R2_SECRET_ACCESS_KEY') else 'NOT SET'}")
+logging.info(f"R2_BUCKET_NAME: {os.getenv('R2_BUCKET_NAME', 'NOT SET')}")
+logging.info(f"R2_PUBLIC_URL: {os.getenv('R2_PUBLIC_URL', 'NOT SET')}")
 
 R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID")
 R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY_ID")  # Updated to match Railway env var
@@ -18,39 +26,44 @@ R2_BUCKET     = os.getenv("R2_BUCKET_NAME", "unihacks26")  # Updated to match Ra
 R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
 
 def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
-    import logging
-    logging.info(f"R2 Config - Account: {R2_ACCOUNT_ID}, Bucket: {R2_BUCKET}, Key: {key}")
-    
-    if not all([R2_ACCOUNT_ID, R2_ACCESS_KEY, R2_SECRET_KEY]):
-        logging.error(f"R2 config missing: Account={bool(R2_ACCOUNT_ID)}, Access={bool(R2_ACCESS_KEY)}, Secret={bool(R2_SECRET_KEY)}")
-        raise HTTPException(500, "R2 configuration missing")
-
-    s3_client = boto3.client(
-        's3',
-        endpoint_url=f'https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com',
-        aws_access_key_id=R2_ACCESS_KEY,
-        aws_secret_access_key=R2_SECRET_KEY,
-        config=Config(
-            signature_version='s3v4',
-            s3={'addressing_style': 'path'},
-            retries={'max_attempts': 3}
-        )
-    )
-
+    """Upload file to R2 using direct HTTP requests"""
     try:
-        # Convert bytes to file-like object for upload_fileobj
-        file_obj = BytesIO(data)
+        import requests
+        from botocore.auth import SigV4Auth
+        from botocore.awsrequest import AWSRequest
         
-        logging.info(f"Uploading to R2: {R2_BUCKET}/{key}")
-        s3_client.upload_fileobj(
-            file_obj,
-            R2_BUCKET,
-            key
+        url = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{R2_BUCKET}/{key}"
+        
+        # Create AWS request for signing
+        aws_request = AWSRequest(
+            method='PUT',
+            url=url,
+            headers={
+                'Host': f"{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+                'Content-Type': content_type
+            },
+            body=data
         )
         
-        final_url = f"{R2_PUBLIC_URL}/unihacks26/dilemmas/{key}"
-        logging.info(f"Upload successful, URL: {final_url}")
-        return final_url
+        # Sign the request
+        auth = SigV4Auth(
+            credentials={
+                'access_key': R2_ACCESS_KEY,
+                'secret_key': R2_SECRET_KEY
+            },
+            service_name='s3',
+            region_name='auto'
+        )
+        auth.add_auth(aws_request)
+        
+        # Make the upload request
+        response = requests.put(url, data=data, headers=dict(aws_request.headers))
+        
+        if response.status_code not in [200, 201]:
+            raise HTTPException(500, f"R2 upload failed: HTTP {response.status_code} - {response.text}")
+        
+        return f"{R2_PUBLIC_URL}/unihacks26/dilemmas/{key}"
+        
     except Exception as e:
         logging.error(f"R2 upload failed: {str(e)}")
         raise HTTPException(500, f"R2 upload failed: {str(e)}")
@@ -59,18 +72,65 @@ router = APIRouter(prefix="/dilemmas", tags=["dilemmas"])
 
 @router.get("/test-connection")
 def test_connection():
-    """Test R2 connection"""
+    """Test R2 connection with direct HTTP request"""
     try:
-        s3_client = boto3.client(
-            's3',
-            endpoint_url=f'https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com',
-            aws_access_key_id=R2_ACCESS_KEY,
-            aws_secret_access_key=R2_SECRET_KEY,
-            config=Config(signature_version='s3v4', s3={'addressing_style': 'path'})
+        import requests
+        from botocore.auth import SigV4Auth
+        from botocore.awsrequest import AWSRequest
+        import datetime
+        
+        logging.info(f"Testing R2 connection with Account: {R2_ACCOUNT_ID}, Bucket: {R2_BUCKET}")
+        logging.info(f"Access key set: {bool(R2_ACCESS_KEY)}, Secret key set: {bool(R2_SECRET_KEY)}")
+        
+        if not all([R2_ACCOUNT_ID, R2_ACCESS_KEY, R2_SECRET_KEY]):
+            return {"success": False, "error": "Missing R2 configuration"}
+        
+        # Test 1: Try to access the bucket directly
+        url = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{R2_BUCKET}"
+        
+        # Create AWS request for signing
+        aws_request = AWSRequest(
+            method='GET',
+            url=url,
+            headers={
+                'Host': f"{R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+            }
         )
-        response = s3_client.list_buckets()
-        return {"success": True, "buckets": [b['Name'] for b in response['Buckets']]}
+        
+        # Sign the request with SigV4
+        auth = SigV4Auth(
+            credentials={
+                'access_key': R2_ACCESS_KEY,
+                'secret_key': R2_SECRET_KEY
+            },
+            service_name='s3',
+            region_name='auto'
+        )
+        auth.add_auth(aws_request)
+        
+        logging.info(f"Making signed request to: {url}")
+        response = requests.get(url, headers=dict(aws_request.headers), timeout=10)
+        
+        logging.info(f"Response status: {response.status_code}")
+        logging.info(f"Response headers: {dict(response.headers)}")
+        
+        if response.status_code == 200:
+            return {"success": True, "message": "R2 connection successful", "status": response.status_code}
+        elif response.status_code == 403:
+            return {"success": False, "error": "Access denied - check R2 token permissions", "status": response.status_code, "response": response.text}
+        elif response.status_code == 404:
+            return {"success": False, "error": "Bucket not found - check bucket name and account ID", "status": response.status_code, "response": response.text}
+        else:
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}", "status": response.status_code}
+            
+    except requests.exceptions.Timeout:
+        return {"success": False, "error": "Request timed out - check network connectivity"}
+    except requests.exceptions.ConnectionError:
+        return {"success": False, "error": "Connection failed - check endpoint URL"}
     except Exception as e:
+        logging.error(f"R2 test failed: {str(e)}")
+        import traceback
+        logging.error(f"Traceback: {traceback.format_exc()}")
         return {"success": False, "error": str(e)}
 
 class VoteBody(BaseModel):
