@@ -626,6 +626,7 @@ VITE_API_URL=https://your-backend-url.railway.app
 | `R2_SECRET_KEY` | R2 secret key | `r2_secret_key` |
 | `R2_BUCKET_NAME` | R2 bucket name | `unihacks26` |
 | `R2_PUBLIC_URL` | Custom R2 domain | `https://pub-xxx.r2.dev` |
+| `ADMIN_USERNAMES` | Comma-separated list of usernames that are allowed to delete any post | `admin,moderator` |
 
 ### Optional Variables
 
