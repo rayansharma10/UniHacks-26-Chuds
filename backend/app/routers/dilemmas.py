@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
@@ -47,8 +47,8 @@ def my_dilemmas(db: Session = Depends(get_db), current_user: models.User = Depen
     return [fmt(d) for d in dilemmas]
 
 @router.post("", status_code=201)
-def create_dilemma(body: DilemmaBody, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    d = models.Dilemma(user_id=current_user.id, content=body.content, category=body.category)
+def create_dilemma(content: str = Form(...), category: str = Form(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    d = models.Dilemma(user_id=current_user.id, content=content, category=category)
     db.add(d)
     db.commit()
     db.refresh(d)
