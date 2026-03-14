@@ -2,17 +2,28 @@ import { useQuery } from '@tanstack/react-query'
 import { useFeedStore } from '../stores/feedStore'
 import api from '../lib/api'
 import DilemmaCard from '../components/DilemmaCard'
-import { Loader2 } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 
 const CATEGORIES = ['all', 'personal', 'community', 'civic']
 
 export default function Feed() {
-  const { category, setCategory } = useFeedStore()
+  const { category, setCategory, community, setCommunity } = useFeedStore()
+
+  const { data: communities = [] } = useQuery({
+    queryKey: ['communities'],
+    queryFn: () => api.get('/communities').then((r) => r.data),
+  })
+
+  const activeCommunity = communities.find((c) => c.slug === community)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['feed', category],
-    queryFn: () =>
-      api.get('/dilemmas', { params: category !== 'all' ? { category } : {} }).then((r) => r.data),
+    queryKey: ['feed', category, community],
+    queryFn: () => {
+      const params = {}
+      if (category !== 'all') params.category = category
+      if (community) params.community = community
+      return api.get('/dilemmas', { params }).then((r) => r.data)
+    },
   })
 
   return (
@@ -20,7 +31,20 @@ export default function Feed() {
       {/* Header */}
       <div className="px-6 pt-8 pb-4 bg-[#0f0f0f] sticky top-0 z-10 border-b border-[#2a2a2a]">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-lg font-bold">Feed</h1>
+          {activeCommunity ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xl">{activeCommunity.icon ?? '🌐'}</span>
+              <h1 className="text-lg font-bold">{activeCommunity.name}</h1>
+              <button
+                onClick={() => setCommunity(null)}
+                className="ml-1 p-1 rounded-lg text-[#888] hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <h1 className="text-lg font-bold">Popular</h1>
+          )}
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1">
           {CATEGORIES.map((c) => (
@@ -48,7 +72,7 @@ export default function Feed() {
         )}
         {data?.map((d) => <DilemmaCard key={d.id} dilemma={d} />)}
         {!isLoading && !data?.length && (
-          <p className="text-center text-[#888] pt-16">No dilemmas yet. Be the first!</p>
+          <p className="text-center text-[#888] pt-16">No dilemmas here yet.</p>
         )}
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Flame, PlusCircle, Trophy, User, Zap } from 'lucide-react'
+import { Flame, PlusCircle, Trophy, User, Zap, Sparkles } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 
 const links = [
@@ -37,6 +37,24 @@ export default function SideNav() {
           {label}
         </NavLink>
       ))}
+
+      {/* AI tab — coming soon */}
+      <NavLink
+        to="/ai"
+        className={({ isActive }) =>
+          `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+            isActive
+              ? 'bg-[#ff6b4a]/10 text-[#ff6b4a]'
+              : 'text-[#888] hover:text-white hover:bg-white/5'
+          }`
+        }
+      >
+        <Sparkles size={18} />
+        <span className="flex-1">AI Judge</span>
+        <span className="text-[10px] font-semibold bg-[#ff6b4a]/15 text-[#ff6b4a] px-1.5 py-0.5 rounded-full border border-[#ff6b4a]/20">
+          SOON
+        </span>
+      </NavLink>
 
       {/* User pill at bottom */}
       <div className="mt-auto">

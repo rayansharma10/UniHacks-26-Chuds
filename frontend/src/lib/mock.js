@@ -137,6 +137,28 @@ const COMMENTS = [
   { id: 49, dilemma_id: 8, user_id: 4, username: 'mei_l',    content: 'At 26 the stigma is basically gone. Housing costs are insane. Be practical.', created_at: '2025-03-14T09:30:00Z' },
 ]
 
+const COMMUNITIES = [
+  { id: 1, slug: 'fitzroy',         name: 'Fitzroy',              type: 'suburb',  members: 1240, icon: '🏘️' },
+  { id: 2, slug: 'unimelb',         name: 'UniMelb',              type: 'school',  members: 8300, icon: '🎓' },
+  { id: 3, slug: 'acme-corp',       name: 'Acme Corp',            type: 'work',    members:  430, icon: '💼' },
+  { id: 4, slug: 'northside-fc',    name: 'Northside FC',         type: 'club',    members:  180, icon: '⚽' },
+  { id: 5, slug: 'inner-north',     name: 'Inner North',          type: 'suburb',  members: 3100, icon: '🏙️' },
+]
+
+// tag some dilemmas to communities
+const DILEMMA_COMMUNITIES = [
+  { dilemma_id: 3, community_slug: 'fitzroy' },
+  { dilemma_id: 3, community_slug: 'inner-north' },
+  { dilemma_id: 6, community_slug: 'fitzroy' },
+  { dilemma_id: 6, community_slug: 'inner-north' },
+  { dilemma_id: 7, community_slug: 'inner-north' },
+  { dilemma_id: 2, community_slug: 'acme-corp' },
+  { dilemma_id: 5, community_slug: 'acme-corp' },
+  { dilemma_id: 1, community_slug: 'unimelb' },
+  { dilemma_id: 8, community_slug: 'unimelb' },
+  { dilemma_id: 4, community_slug: 'unimelb' },
+]
+
 // ── Mutable state ─────────────────────────────────────────────────────────────
 
 let dilemmas = [...DILEMMAS]
@@ -173,9 +195,19 @@ mock.onGet('/users/leaderboard').reply(() => {
   return [200, [...USERS].sort((a, b) => b.points - a.points)]
 })
 
+mock.onGet('/communities').reply(() => {
+  return [200, COMMUNITIES]
+})
+
 mock.onGet('/dilemmas').reply((config) => {
   const category = config.params?.category
-  const filtered = category ? dilemmas.filter((d) => d.category === category) : dilemmas
+  const community = config.params?.community
+  let filtered = dilemmas
+  if (community) {
+    const ids = DILEMMA_COMMUNITIES.filter((dc) => dc.community_slug === community).map((dc) => dc.dilemma_id)
+    filtered = filtered.filter((d) => ids.includes(d.id))
+  }
+  if (category) filtered = filtered.filter((d) => d.category === category)
   return [200, [...filtered].reverse()]
 })
 

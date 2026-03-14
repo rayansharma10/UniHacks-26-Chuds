@@ -1,69 +1,93 @@
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useFeedStore } from '../stores/feedStore'
 import api from '../lib/api'
-import { Trophy, TrendingUp } from 'lucide-react'
+import { Users, Hash, Globe } from 'lucide-react'
+
+const TYPE_ICONS = {
+  suburb: '🏘️',
+  school: '🎓',
+  work:   '💼',
+  club:   '⚽',
+}
 
 export default function RightPanel() {
-  const navigate = useNavigate()
+  const { community, setCommunity } = useFeedStore()
 
-  const { data: leaderboard } = useQuery({
-    queryKey: ['leaderboard'],
-    queryFn: () => api.get('/users/leaderboard').then((r) => r.data),
+  const { data: communities = [] } = useQuery({
+    queryKey: ['communities'],
+    queryFn: () => api.get('/communities').then((r) => r.data),
   })
 
-  const medals = ['🥇', '🥈', '🥉']
-
   return (
-    <aside className="hidden lg:flex flex-col w-72 shrink-0 h-screen sticky top-0 border-l border-[#2a2a2a] px-4 py-6 gap-6 overflow-y-auto">
-      {/* Mini leaderboard */}
-      <div className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Trophy size={15} className="text-[#ff6b4a]" />
-            <span className="text-sm font-semibold">Top Judges</span>
-          </div>
-          <button
-            onClick={() => navigate('/leaderboard')}
-            className="text-xs text-[#ff6b4a] hover:underline"
-          >
-            See all
-          </button>
-        </div>
-        {leaderboard?.slice(0, 5).map((user, i) => (
-          <div key={user.id} className="flex items-center gap-2">
-            <span className="text-base w-6 text-center">{medals[i] ?? `#${i + 1}`}</span>
-            <div className="w-7 h-7 rounded-full bg-[#ff6b4a]/20 flex items-center justify-center text-xs font-bold text-[#ff6b4a] shrink-0">
-              {user.username[0].toUpperCase()}
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium truncate">{user.username}</p>
-            </div>
-            <span className="text-xs text-[#888] shrink-0">{user.points} pts</span>
-          </div>
-        ))}
-        {!leaderboard?.length && (
-          <p className="text-xs text-[#888]">No rankings yet.</p>
-        )}
+    <aside className="hidden lg:flex flex-col w-72 shrink-0 h-screen sticky top-0 border-l border-[#2a2a2a] px-4 py-6 gap-4 overflow-y-auto">
+
+      {/* Home / Popular */}
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-semibold text-[#555] uppercase tracking-wide px-2 mb-1">Feeds</p>
+        <button
+          onClick={() => setCommunity(null)}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors w-full text-left ${
+            community === null
+              ? 'bg-[#ff6b4a]/10 text-[#ff6b4a]'
+              : 'text-[#888] hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <Globe size={16} />
+          Popular
+        </button>
       </div>
 
-      {/* How it works */}
-      <div className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-4 flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <TrendingUp size={15} className="text-[#ff6b4a]" />
-          <span className="text-sm font-semibold">How it works</span>
+      <div className="h-px bg-[#2a2a2a]" />
+
+      {/* My Communities */}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between px-2 mb-1">
+          <p className="text-xs font-semibold text-[#555] uppercase tracking-wide">My Communities</p>
+          <button className="text-xs text-[#ff6b4a] hover:underline">+ Join</button>
         </div>
-        {[
-          ['🗳️', 'Vote on dilemmas'],
-          ['🤖', 'AI scores your reasoning'],
-          ['🏆', 'Climb the leaderboard'],
-          ['🏛️', 'Civic votes become real submissions'],
-        ].map(([emoji, text]) => (
-          <div key={text} className="flex items-center gap-2 text-xs text-[#888]">
-            <span>{emoji}</span>
-            <span>{text}</span>
-          </div>
+
+        {communities.map((c) => (
+          <button
+            key={c.slug}
+            onClick={() => setCommunity(c.slug === community ? null : c.slug)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors w-full text-left group ${
+              community === c.slug
+                ? 'bg-[#ff6b4a]/10 text-[#ff6b4a]'
+                : 'text-[#888] hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <span className="text-base w-5 text-center shrink-0">{TYPE_ICONS[c.type] ?? '🌐'}</span>
+            <div className="flex-1 overflow-hidden">
+              <p className="truncate font-medium">{c.name}</p>
+            </div>
+            <span className={`text-xs shrink-0 ${community === c.slug ? 'text-[#ff6b4a]/70' : 'text-[#555]'}`}>
+              {c.members >= 1000 ? `${(c.members / 1000).toFixed(1)}k` : c.members}
+            </span>
+          </button>
         ))}
       </div>
+
+      <div className="h-px bg-[#2a2a2a]" />
+
+      {/* Discover */}
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-semibold text-[#555] uppercase tracking-wide px-2 mb-1">Discover</p>
+        {[
+          { icon: '🏙️', name: 'Melbourne CBD', members: '12.4k' },
+          { icon: '🏫', name: 'RMIT',           members: '6.1k' },
+          { icon: '🏥', name: 'Healthcare Workers', members: '3.8k' },
+        ].map((c) => (
+          <button
+            key={c.name}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#555] hover:text-white hover:bg-white/5 transition-colors w-full text-left"
+          >
+            <span className="text-base w-5 text-center shrink-0">{c.icon}</span>
+            <span className="flex-1 truncate">{c.name}</span>
+            <span className="text-xs shrink-0">{c.members}</span>
+          </button>
+        ))}
+      </div>
+
     </aside>
   )
 }
