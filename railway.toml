@@ -1,3 +1,2 @@
 [build]
 builder = "dockerfile"
-buildArgs = ["VITE_API_URL"]
