@@ -76,12 +76,10 @@ router = APIRouter(prefix="/dilemmas", tags=["dilemmas"])
 
 @router.get("/test-connection")
 def test_connection():
-    """Test R2 connection with direct HTTP request"""
+    """Test R2 connection using boto3"""
     try:
-        import requests
-        from botocore.auth import SigV4Auth
-        from botocore.awsrequest import AWSRequest
-        import datetime
+        import boto3
+        from botocore.exceptions import ClientError
         
         logging.info(f"Testing R2 connection with Account: {R2_ACCOUNT_ID}, Bucket: {R2_BUCKET}")
         logging.info(f"Access key set: {bool(R2_ACCESS_KEY)}, Secret key set: {bool(R2_SECRET_KEY)}")
@@ -89,50 +87,33 @@ def test_connection():
         if not all([R2_ACCOUNT_ID, R2_ACCESS_KEY, R2_SECRET_KEY]):
             return {"success": False, "error": "Missing R2 configuration"}
         
-        # Test 1: Try to access the bucket directly
-        url = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{R2_BUCKET}"
-        
-        # Create AWS request for signing
-        aws_request = AWSRequest(
-            method='GET',
-            url=url,
-            headers={
-                'Host': f"{R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
-            }
+        # Create S3 client for R2
+        s3_client = boto3.client(
+            's3',
+            endpoint_url=f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+            aws_access_key_id=R2_ACCESS_KEY,
+            aws_secret_access_key=R2_SECRET_KEY,
+            region_name='auto',
+            config=Config(signature_version='s3v4')
         )
         
-        # Sign the request with SigV4
-        from botocore.credentials import Credentials
-        credentials = Credentials(
-            access_key=R2_ACCESS_KEY,
-            secret_key=R2_SECRET_KEY
-        )
-        auth = SigV4Auth(
-            credentials=credentials,
-            service_name='s3',
-            region_name='auto'
-        )
-        auth.add_auth(aws_request)
-        
-        logging.info(f"Making signed request to: {url}")
-        response = requests.get(url, headers=dict(aws_request.headers), timeout=10)
-        
-        logging.info(f"Response status: {response.status_code}")
-        logging.info(f"Response headers: {dict(response.headers)}")
-        
-        if response.status_code == 200:
-            return {"success": True, "message": "R2 connection successful", "status": response.status_code}
-        elif response.status_code == 403:
-            return {"success": False, "error": "Access denied - check R2 token permissions", "status": response.status_code, "response": response.text}
-        elif response.status_code == 404:
-            return {"success": False, "error": "Bucket not found - check bucket name and account ID", "status": response.status_code, "response": response.text}
-        else:
-            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}", "status": response.status_code}
+        # Test connection by listing objects (limit to 1 to avoid large responses)
+        try:
+            response = s3_client.list_objects_v2(Bucket=R2_BUCKET, MaxKeys=1)
+            buckets = [obj['Key'] for obj in response.get('Contents', [])]
+            return {"success": True, "message": "R2 connection successful", "buckets": buckets}
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            error_message = e.response['Error']['Message']
+            if error_code == 'NoSuchBucket':
+                return {"success": False, "error": "Bucket not found - check bucket name"}
+            elif error_code == 'AccessDenied':
+                return {"success": False, "error": "Access denied - check R2 token permissions"}
+            else:
+                return {"success": False, "error": f"AWS Error {error_code}: {error_message}"}
+        except Exception as e:
+            return {"success": False, "error": f"Connection failed: {str(e)}"}
             
-    except requests.exceptions.Timeout:
-        return {"success": False, "error": "Request timed out - check network connectivity"}
-    except requests.exceptions.ConnectionError:
-        return {"success": False, "error": "Connection failed - check endpoint URL"}
     except Exception as e:
         logging.error(f"R2 test failed: {str(e)}")
         import traceback
