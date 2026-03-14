@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Marquee } from '../components/ui/marquee';
+import { Globe } from '../components/ui/globe';
 import { Brain, Users, Shield, Flame } from 'lucide-react';
 
 export default function About() {
@@ -48,7 +49,13 @@ export default function About() {
           style={{ opacity: section1Opacity, scale: section1Scale, y: section1Y }}
           className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pointer-events-none"
         >
+          {/* Globe Background */}
+          <div className="absolute inset-x-0 bottom-[-20%] md:bottom-[-40%] z-0 flex items-center justify-center opacity-40 pointer-events-auto mix-blend-screen overflow-hidden">
+             <Globe className="scale-125 md:scale-150" />
+          </div>
+
           <motion.div
+             className="relative z-10"
              initial={{ scale: 0.9, opacity: 0 }}
              animate={{ scale: 1, opacity: 1 }}
              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
