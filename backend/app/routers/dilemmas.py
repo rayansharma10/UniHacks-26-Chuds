@@ -115,6 +115,12 @@ class OutcomeBody(BaseModel):
 def fmt(d: models.Dilemma):
     yes = sum(1 for v in d.votes if v.choice == "yes")
     no  = sum(1 for v in d.votes if v.choice == "no")
+    
+    # Fix old or local uploads pointing to R2
+    final_image_url = d.image_url
+    if final_image_url and final_image_url.startswith("/uploads/"):
+        final_image_url = f"{R2_PUBLIC_URL}{final_image_url}"
+        
     return {
         "id": d.id,
         "user_id": d.user_id,
@@ -127,7 +133,7 @@ def fmt(d: models.Dilemma):
         "outcome": d.outcome,
         "votes_yes": yes,
         "votes_no": no,
-        "image_url": d.image_url,
+        "image_url": final_image_url,
         "created_at": d.created_at.isoformat(),
     }
 
