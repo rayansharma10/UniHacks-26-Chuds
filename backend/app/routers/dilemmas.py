@@ -1,5 +1,6 @@
 import uuid
-import requests
+import boto3
+from botocore.client import Config
 from fastapi import APIRouter, Depends, HTTPException, Form, UploadFile, File
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -16,16 +17,29 @@ R2_BUCKET     = os.getenv("R2_BUCKET", "unihacks26")
 R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
 
 def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
-    url = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{R2_BUCKET}/{key}"
-    r = requests.put(
-        url, data=data,
-        headers={"Content-Type": content_type},
-        auth=(R2_ACCESS_KEY, R2_SECRET_KEY),
-        verify=False,
+    if not all([R2_ACCOUNT_ID, R2_ACCESS_KEY, R2_SECRET_KEY]):
+        raise HTTPException(500, "R2 configuration missing")
+
+    s3_client = boto3.client(
+        's3',
+        endpoint_url=f'https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com',
+        aws_access_key_id=R2_ACCESS_KEY,
+        aws_secret_access_key=R2_SECRET_KEY,
+        config=Config(signature_version='s3v4'),
+        region_name='auto'
     )
-    if r.status_code not in (200, 201):
-        raise HTTPException(500, f"R2 upload failed: {r.text}")
-    return f"{R2_PUBLIC_URL}/{key}"
+
+    try:
+        s3_client.put_object(
+            Bucket=R2_BUCKET,
+            Key=key,
+            Body=data,
+            ContentType=content_type,
+            ACL='public-read'
+        )
+        return f"{R2_PUBLIC_URL}/{key}"
+    except Exception as e:
+        raise HTTPException(500, f"R2 upload failed: {str(e)}")
 
 router = APIRouter(prefix="/dilemmas", tags=["dilemmas"])
 
