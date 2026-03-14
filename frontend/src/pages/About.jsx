@@ -13,27 +13,32 @@ export default function About() {
     offset: ["start start", "end end"]
   });
 
-  // Section 1: 0 to 25% scroll range (Hero)
-  const section1Opacity = useTransform(scrollYProgress, [0, 0.2, 0.3], [1, 1, 0]);
-  const section1Scale = useTransform(scrollYProgress, [0, 0.3], [1, 0.8]);
-  const section1Y = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
+  // Section 1: 0 to 15% scroll range (Hero: "PARALLEL" + Globe)
+  const section1Opacity = useTransform(scrollYProgress, [0, 0.1, 0.15], [1, 1, 0]);
+  const section1Scale = useTransform(scrollYProgress, [0, 0.15], [1, 0.8]);
+  const section1Y = useTransform(scrollYProgress, [0, 0.15], [0, -100]);
 
-  // Section 2: 20% to 55% scroll range (Features)
-  const section2Opacity = useTransform(scrollYProgress, [0.2, 0.35, 0.5, 0.6], [0, 1, 1, 0]);
-  const section2Y = useTransform(scrollYProgress, [0.2, 0.35, 0.5, 0.6], [100, 0, 0, -100]);
-  const section2Scale = useTransform(scrollYProgress, [0.2, 0.35, 0.5, 0.6], [0.9, 1, 1, 0.9]);
+  // Section 2: 12% to 35% scroll range (Marquee / Tech Specs)
+  const sectionMMOpacity = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [0, 1, 1, 0]);
+  const sectionMMY = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [100, 0, 0, -100]);
+  const sectionMMScale = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [0.9, 1, 1, 0.9]);
 
-  // Section 3: 50% to 80% scroll range (AI)
-  const section3Opacity = useTransform(scrollYProgress, [0.45, 0.6, 0.75, 0.85], [0, 1, 1, 0]);
-  const section3Y = useTransform(scrollYProgress, [0.45, 0.6, 0.75, 0.85], [100, 0, 0, -100]);
-  const section3Scale = useTransform(scrollYProgress, [0.45, 0.6, 0.75, 0.85], [0.9, 1, 1, 0.9]);
+  // Section 3: 32% to 60% scroll range (Features / Display Cards)
+  const section2Opacity = useTransform(scrollYProgress, [0.32, 0.45, 0.55, 0.6], [0, 1, 1, 0]);
+  const section2Y = useTransform(scrollYProgress, [0.32, 0.45, 0.55, 0.6], [100, 0, 0, -100]);
+  const section2Scale = useTransform(scrollYProgress, [0.32, 0.45, 0.55, 0.6], [0.9, 1, 1, 0.9]);
 
-  // Section 4: 75% to 100% scroll range (Outro)
+  // Section 4: 55% to 80% scroll range (AI)
+  const section3Opacity = useTransform(scrollYProgress, [0.55, 0.65, 0.75, 0.8], [0, 1, 1, 0]);
+  const section3Y = useTransform(scrollYProgress, [0.55, 0.65, 0.75, 0.8], [100, 0, 0, -100]);
+  const section3Scale = useTransform(scrollYProgress, [0.55, 0.65, 0.75, 0.8], [0.9, 1, 1, 0.9]);
+
+  // Section 5: 75% to 100% scroll range (Outro)
   const section4Opacity = useTransform(scrollYProgress, [0.75, 0.9, 1], [0, 1, 1]);
   const section4Scale = useTransform(scrollYProgress, [0.75, 0.9, 1], [0.8, 1, 1]);
 
   return (
-    <div ref={containerRef} className="h-[400vh] bg-[#0A0A0A] relative text-white selection:bg-[#ff6b4a] selection:text-white font-sans">
+    <div ref={containerRef} className="h-[600vh] bg-[#0A0A0A] relative text-white selection:bg-[#ff6b4a] selection:text-white font-sans">
       {/* Sticky Container for Scroll Jacking */}
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden border-x border-[#ffffff05]">
         
@@ -71,8 +76,53 @@ export default function About() {
             <p className="mt-6 text-xl md:text-3xl text-neutral-400 font-light tracking-wide max-w-2xl mx-auto">
               Decide the Undecidable
             </p>
-            <div className="w-full mt-16 max-w-[100vw] overflow-hidden -mx-4 pointer-events-auto">
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 2 }}
+            className="absolute bottom-12 flex flex-col items-center gap-4 z-10"
+          >
+            <span className="text-xs uppercase tracking-[0.3em] text-neutral-500 font-medium tracking-widest">Scroll Down</span>
+            <div className="w-[1px] h-20 bg-gradient-to-b from-neutral-500 to-transparent" />
+          </motion.div>
+          </AuroraBackground>
+        </motion.div>
+
+        {/* Section 1.5: Marquee & Specs */}
+        <motion.div 
+          style={{ opacity: sectionMMOpacity, y: sectionMMY, scale: sectionMMScale }}
+          className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-12 lg:px-24 text-center pointer-events-none"
+        >
+          <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tight text-white drop-shadow-lg">
+            Powering Next-Gen Discourse
+          </h2>
+          <div className="w-full mt-12 max-w-[100vw] overflow-hidden -mx-4 pointer-events-auto">
               <Marquee className="max-w-5xl mx-auto" fade={true} pauseOnHover={true}>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <span className="text-3xl font-bold text-[#61DAFB]">React 19</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <span className="text-3xl font-bold text-white">Next.js</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <span className="text-3xl font-bold text-[#38B2AC]">Tailwind V4</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <span className="text-3xl font-bold text-[#F38020]">Cloudflare R2</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <span className="text-3xl font-bold text-[#3776AB]">Python FastAPI</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <span className="text-3xl font-bold text-[#336791]">PostgreSQL</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <span className="text-3xl font-bold text-[#e10098]">Zustand</span>
+                </div>
+              </Marquee>
+              <Marquee className="max-w-5xl mx-auto mt-4" fade={true} pauseOnHover={true} direction="right">
                 <div className="flex items-center gap-4 mx-8 py-4">
                   <Brain className="w-8 h-8 text-[#ff6b4a]" />
                   <span className="text-2xl font-medium text-white/90">Ethics</span>
@@ -82,7 +132,7 @@ export default function About() {
                   <span className="text-2xl font-medium text-white/90">Society</span>
                 </div>
                 <div className="flex items-center gap-4 mx-8 py-4">
-                  <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=100&h=100" className="w-12 h-12 rounded-full object-cover border border-white/20" alt="Tech" />
+                  <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=100&h=100" className="w-12 h-12 rounded-full object-cover border border-white/20" alt="Culture" />
                   <span className="text-2xl font-medium text-white/90">Culture</span>
                 </div>
                 <div className="flex items-center gap-4 mx-8 py-4">
@@ -90,7 +140,7 @@ export default function About() {
                   <span className="text-2xl font-medium text-white/90">Truth</span>
                 </div>
                 <div className="flex items-center gap-4 mx-8 py-4">
-                  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=100&h=100" className="w-12 h-12 rounded-full object-cover border border-white/20" alt="Globe" />
+                  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=100&h=100" className="w-12 h-12 rounded-full object-cover border border-white/20" alt="Globe Humanity" />
                   <span className="text-2xl font-medium text-white/90">Humanity</span>
                 </div>
                 <div className="flex items-center gap-4 mx-8 py-4">
@@ -99,17 +149,6 @@ export default function About() {
                 </div>
               </Marquee>
             </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 2 }}
-            className="absolute bottom-12 flex flex-col items-center gap-4 z-10"
-          >
-            <span className="text-xs uppercase tracking-[0.3em] text-neutral-500 font-medium tracking-widest">Scroll to Journey</span>
-            <div className="w-[1px] h-20 bg-gradient-to-b from-neutral-500 to-transparent" />
-          </motion.div>
-          </AuroraBackground>
         </motion.div>
 
         {/* Section 2: Features */}
