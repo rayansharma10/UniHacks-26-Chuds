@@ -7,3 +7,5 @@ RUN npm install
 
 COPY frontend/ .
 RUN npm run build
+
+CMD ["./node_modules/.bin/serve", "dist", "--single", "-l", "tcp://0.0.0.0:3000"]
