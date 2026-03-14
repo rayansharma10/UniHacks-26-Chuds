@@ -1,10 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException, Form
+import uuid
+import boto3
+from fastapi import APIRouter, Depends, HTTPException, Form, UploadFile, File
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
 from ..database import get_db
 from ..auth import get_current_user
 from .. import models
+import os
+
+R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID")
+R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY")
+R2_SECRET_KEY = os.getenv("R2_SECRET_KEY")
+R2_BUCKET     = os.getenv("R2_BUCKET", "unihacks26")
+R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
+
+def get_s3():
+    return boto3.client(
+        "s3",
+        endpoint_url=f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+        aws_access_key_id=R2_ACCESS_KEY,
+        aws_secret_access_key=R2_SECRET_KEY,
+        region_name="auto",
+    )
 
 router = APIRouter(prefix="/dilemmas", tags=["dilemmas"])
 
@@ -30,6 +48,7 @@ def fmt(d: models.Dilemma):
         "outcome": d.outcome,
         "votes_yes": yes,
         "votes_no": no,
+        "image_url": d.image_url,
         "created_at": d.created_at.isoformat(),
     }
 
@@ -47,8 +66,15 @@ def my_dilemmas(db: Session = Depends(get_db), current_user: models.User = Depen
     return [fmt(d) for d in dilemmas]
 
 @router.post("", status_code=201)
-def create_dilemma(content: str = Form(...), category: str = Form(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    d = models.Dilemma(user_id=current_user.id, content=content, category=category)
+async def create_dilemma(content: str = Form(...), category: str = Form(...), image: Optional[UploadFile] = File(None), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    image_url = None
+    if image and image.filename:
+        ext = image.filename.rsplit('.', 1)[-1]
+        key = f"dilemmas/{uuid.uuid4()}.{ext}"
+        s3 = get_s3()
+        s3.upload_fileobj(image.file, R2_BUCKET, key, ExtraArgs={"ContentType": image.content_type})
+        image_url = f"{R2_PUBLIC_URL}/{key}"
+    d = models.Dilemma(user_id=current_user.id, content=content, category=category, image_url=image_url)
     db.add(d)
     db.commit()
     db.refresh(d)

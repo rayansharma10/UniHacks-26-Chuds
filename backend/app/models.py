@@ -23,6 +23,7 @@ class Dilemma(Base):
     content    = Column(Text, nullable=False)
     category   = Column(String, nullable=False)  # personal | community | civic
     outcome    = Column(Text, nullable=True)
+    image_url  = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     author   = relationship("User", back_populates="dilemmas")

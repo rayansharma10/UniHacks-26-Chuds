@@ -1,22 +1,39 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import api from '../lib/api'
-import { Loader2 } from 'lucide-react'
+import { Loader2, ImagePlus, X } from 'lucide-react'
 
 const CATEGORIES = ['personal', 'community', 'civic']
 
 export default function Post() {
   const [content, setContent] = useState('')
   const [category, setCategory] = useState('personal')
+  const [image, setImage] = useState(null)
+  const [preview, setPreview] = useState(null)
+  const fileRef = useRef()
   const navigate = useNavigate()
   const qc = useQueryClient()
+
+  const handleImage = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setImage(file)
+    setPreview(URL.createObjectURL(file))
+  }
+
+  const removeImage = () => {
+    setImage(null)
+    setPreview(null)
+    fileRef.current.value = ''
+  }
 
   const post = useMutation({
     mutationFn: () => {
       const fd = new FormData()
       fd.append('content', content)
       fd.append('category', category)
+      if (image) fd.append('image', image)
       return api.post('/dilemmas', fd)
     },
     onSuccess: () => {
@@ -36,6 +53,29 @@ export default function Post() {
         rows={6}
         className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 text-sm text-[#f0f0f0] placeholder-[#555] resize-none focus:outline-none focus:border-[#ff6b4a] transition-colors"
       />
+
+      <div className="flex flex-col gap-2">
+        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={handleImage} />
+        {preview ? (
+          <div className="relative rounded-xl overflow-hidden border border-[#2a2a2a]">
+            <img src={preview} alt="preview" className="w-full max-h-64 object-cover" />
+            <button
+              onClick={removeImage}
+              className="absolute top-2 right-2 p-1 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileRef.current.click()}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#2a2a2a] text-[#555] hover:text-white hover:border-[#ff6b4a]/50 transition-colors text-sm w-fit"
+          >
+            <ImagePlus size={16} /> Attach image
+          </button>
+        )}
+      </div>
 
       <div className="flex flex-col gap-2">
         <p className="text-sm text-[#888] font-medium">Category</p>
