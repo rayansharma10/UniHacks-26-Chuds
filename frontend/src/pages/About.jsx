@@ -162,7 +162,7 @@ export default function About() {
           <h2 className="text-6xl md:text-[6rem] font-black mb-12 tracking-tighter relative z-10 leading-tight">
             Step Into <br/> The Parallel
           </h2>
-          <a href="/" className="pointer-events-auto px-10 py-5 bg-white text-black text-lg font-bold rounded-full hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(255,107,74,0.4)] relative z-10">
+          <a href="/feed" className="pointer-events-auto px-10 py-5 bg-white text-black text-lg font-bold rounded-full hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(255,107,74,0.4)] relative z-10">
             Start Voting Now
           </a>
         </motion.div>

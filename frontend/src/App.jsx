@@ -12,48 +12,45 @@ import Auth from './pages/Auth'
 import AI from './pages/AI'
 import About from './pages/About'
 
-export default function App() {
-  const { token, user, fetchMe } = useAuthStore()
-  const location = useLocation()
-  const isAuth = location.pathname === '/auth'
+function RequireAuth({ children }) {
+  const { token } = useAuthStore()
+  if (!token) return <Navigate to="/login" replace />
+  return children
+}
 
-  useEffect(() => {
-    if (token && !user) fetchMe()
-  }, [token, user])
-
-  // If not authenticated and not on auth page, redirect to auth
-  if (!token && !isAuth) {
-    return <Navigate to="/auth" replace />
-  }
-
-  // If authenticated and on auth page, redirect to home
-  if (token && isAuth) {
-    return <Navigate to="/" replace />
-  }
-
-  if (isAuth) return <Auth />
-
+function AppShell() {
   return (
     <div className="flex min-h-screen bg-[#0f0f0f]">
       <SideNav />
-
-      {/* Main content */}
       <main className="flex-1 min-w-0 flex flex-col">
-          <Routes>
-            <Route path="/" element={<Feed />} />
-            <Route path="/post" element={<Post />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/ai" element={<AI />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
+        <Routes>
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/post" element={<RequireAuth><Post /></RequireAuth>} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+          <Route path="/ai" element={<AI />} />
+          <Route path="*" element={<Navigate to="/feed" />} />
+        </Routes>
       </main>
-
       <RightPanel />
-
-      {/* Mobile bottom nav */}
       <BottomNav />
     </div>
+  )
+}
+
+export default function App() {
+  const { token, fetchMe } = useAuthStore()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (token) fetchMe()
+  }, [token])
+
+  return (
+    <Routes>
+      <Route path="/" element={<About />} />
+      <Route path="/login" element={token ? <Navigate to="/feed" replace /> : <Auth />} />
+      <Route path="/*" element={<AppShell />} />
+    </Routes>
   )
 }

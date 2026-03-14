@@ -1,11 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { Flame, PlusCircle, Trophy, User, Info } from 'lucide-react'
+import { Flame, PlusCircle, Trophy, User } from 'lucide-react'
 
 const links = [
-  { to: '/', icon: Flame, label: 'Feed' },
+  { to: '/feed', icon: Flame, label: 'Feed' },
   { to: '/post', icon: PlusCircle, label: 'Post' },
   { to: '/leaderboard', icon: Trophy, label: 'Top' },
-  { to: '/about', icon: Info, label: 'About' },
   { to: '/profile', icon: User, label: 'Me' },
 ]
 

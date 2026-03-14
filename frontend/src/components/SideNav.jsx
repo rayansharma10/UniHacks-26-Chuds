@@ -1,12 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Flame, PlusCircle, Trophy, User, Zap, Sparkles, LogOut, Info } from 'lucide-react'
+import { Flame, PlusCircle, Trophy, User, Zap, Sparkles, LogOut } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 
 const links = [
-  { to: '/', icon: Flame, label: 'Feed' },
+  { to: '/feed', icon: Flame, label: 'Feed' },
   { to: '/post', icon: PlusCircle, label: 'Post' },
   { to: '/leaderboard', icon: Trophy, label: 'Top Voices' },
-  { to: '/about', icon: Info, label: 'About' },
   { to: '/profile', icon: User, label: 'Profile' },
 ]
 
@@ -83,7 +82,7 @@ export default function SideNav() {
           </>
         ) : (
           <NavLink
-            to="/auth"
+            to="/login"
             className="flex items-center justify-center px-3 py-2.5 rounded-xl bg-[#ff6b4a] text-white text-sm font-semibold hover:bg-[#cc5239] transition-colors"
           >
             Sign In

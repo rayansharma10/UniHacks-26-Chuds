@@ -97,13 +97,13 @@ export default function RightPanel() {
         <img
           src={railImage}
           alt=""
-          className="w-1/2 rounded-xl object-cover opacity-80"
+          className="w-2/5 rounded-xl object-cover opacity-80"
           style={{ maxHeight: '160px' }}
         />
         <img
           src={sidebarImage}
           alt=""
-          className="w-1/2 rounded-xl object-cover opacity-80"
+          className="w-3/5 rounded-xl object-cover opacity-80"
           style={{ maxHeight: '160px' }}
         />
       </div>

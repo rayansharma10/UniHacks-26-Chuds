@@ -45,7 +45,7 @@ export default function Post() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feed'] })
-      navigate('/')
+      navigate('/feed')
     },
   })
 

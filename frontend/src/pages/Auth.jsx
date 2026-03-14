@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuthStore } from '../stores/authStore'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 
 export default function Auth() {
@@ -24,7 +24,8 @@ export default function Auth() {
         await register(form.username, form.email, form.password)
         await login(form.username, form.password)
       }
-      navigate('/')
+      const from = location.state?.from?.pathname ?? '/feed'
+      navigate(from, { replace: true })
     } catch (err) {
       setError(err.response?.data?.detail ?? 'Something went wrong')
     } finally {
