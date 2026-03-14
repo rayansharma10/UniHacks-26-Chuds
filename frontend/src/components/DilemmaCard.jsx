@@ -115,7 +115,7 @@ export default function DilemmaCard({ dilemma }) {
         </p>
 
         {/* Scrollable comment list */}
-        <div className="flex-1 overflow-y-auto flex flex-col gap-4 min-h-0 pr-1">
+        <div className="overflow-y-auto flex flex-col gap-4 pr-1" style={{ height: '340px' }}>
           {commentsLoading && (
             <div className="flex justify-center py-8">
               <Loader2 size={20} className="animate-spin text-[#ff6b4a]" />
