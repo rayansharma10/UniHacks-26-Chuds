@@ -43,7 +43,7 @@ export default function Profile() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 max-w-sm">
+      <div className="grid grid-cols-2 gap-3 w-full max-w-xs">
         <div className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a]">
           <p className="text-3xl font-bold text-[#ff6b4a]">{user.points ?? 0}</p>
           <p className="text-xs text-[#888] mt-1">Total Points</p>
