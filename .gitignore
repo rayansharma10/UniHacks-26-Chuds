@@ -38,3 +38,17 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+backend/venv/
+backend/.venv/
+*.egg-info/
+dist/
