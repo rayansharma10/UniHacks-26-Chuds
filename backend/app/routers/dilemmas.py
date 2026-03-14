@@ -49,7 +49,7 @@ def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
             ContentType=content_type
         )
         
-        return f"{R2_PUBLIC_URL}/unihacks26/{key}"
+        return f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{R2_BUCKET}/{key}"
         
     except ClientError as e:
         logging.error(f"R2 upload failed: {str(e)}")
