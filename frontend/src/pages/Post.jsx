@@ -26,7 +26,7 @@ export default function Post() {
   })
 
   return (
-    <div className="px-6 pt-8 pb-20 md:pb-8 flex flex-col gap-6 max-w-xl">
+    <div className="px-8 pt-8 pb-20 md:pb-8 flex flex-col gap-6 w-full max-w-3xl mx-auto">
       <h2 className="text-xl font-bold">Post a Dilemma</h2>
 
       <textarea
