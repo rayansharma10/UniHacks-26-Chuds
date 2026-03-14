@@ -1,2 +1,5 @@
 [build]
-builder = "nixpacks"
+builder = "dockerfile"
+
+[deploy]
+startCommand = "./node_modules/.bin/serve dist -l $PORT"
