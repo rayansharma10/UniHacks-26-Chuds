@@ -33,6 +33,7 @@ def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
         import requests
         from botocore.auth import SigV4Auth
         from botocore.awsrequest import AWSRequest
+        from botocore.credentials import Credentials
         
         url = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{R2_BUCKET}/{key}"
         
@@ -48,11 +49,12 @@ def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
         )
         
         # Sign the request
+        credentials = Credentials(
+            access_key=R2_ACCESS_KEY,
+            secret_key=R2_SECRET_KEY
+        )
         auth = SigV4Auth(
-            credentials={
-                'access_key': R2_ACCESS_KEY,
-                'secret_key': R2_SECRET_KEY
-            },
+            credentials=credentials,
             service_name='s3',
             region_name='auto'
         )
@@ -100,11 +102,13 @@ def test_connection():
         )
         
         # Sign the request with SigV4
+        from botocore.credentials import Credentials
+        credentials = Credentials(
+            access_key=R2_ACCESS_KEY,
+            secret_key=R2_SECRET_KEY
+        )
         auth = SigV4Auth(
-            credentials={
-                'access_key': R2_ACCESS_KEY,
-                'secret_key': R2_SECRET_KEY
-            },
+            credentials=credentials,
             service_name='s3',
             region_name='auto'
         )
