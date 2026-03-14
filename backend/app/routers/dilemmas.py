@@ -18,7 +18,11 @@ R2_BUCKET     = os.getenv("R2_BUCKET_NAME", "unihacks26")  # Updated to match Ra
 R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
 
 def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
+    import logging
+    logging.info(f"R2 Config - Account: {R2_ACCOUNT_ID}, Bucket: {R2_BUCKET}, Key: {key}")
+    
     if not all([R2_ACCOUNT_ID, R2_ACCESS_KEY, R2_SECRET_KEY]):
+        logging.error(f"R2 config missing: Account={bool(R2_ACCOUNT_ID)}, Access={bool(R2_ACCESS_KEY)}, Secret={bool(R2_SECRET_KEY)}")
         raise HTTPException(500, "R2 configuration missing")
 
     s3_client = boto3.client(
@@ -37,14 +41,18 @@ def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
         # Convert bytes to file-like object for upload_fileobj
         file_obj = BytesIO(data)
         
+        logging.info(f"Uploading to R2: {R2_BUCKET}/{key}")
         s3_client.upload_fileobj(
             file_obj,
             R2_BUCKET,
             key
         )
         
-        return f"{R2_PUBLIC_URL}/unihacks26/dilemmas/{key}"
+        final_url = f"{R2_PUBLIC_URL}/unihacks26/dilemmas/{key}"
+        logging.info(f"Upload successful, URL: {final_url}")
+        return final_url
     except Exception as e:
+        logging.error(f"R2 upload failed: {str(e)}")
         raise HTTPException(500, f"R2 upload failed: {str(e)}")
 
 router = APIRouter(prefix="/dilemmas", tags=["dilemmas"])
@@ -102,17 +110,24 @@ def my_dilemmas(db: Session = Depends(get_db), current_user: models.User = Depen
 
 @router.post("", status_code=201)
 async def create_dilemma(content: str = Form(...), category: str = Form(...), image: Optional[UploadFile] = File(None), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    image_url = None
-    if image and image.filename:
-        ext = image.filename.rsplit('.', 1)[-1]
-        key = f"{uuid.uuid4()}.{ext}"
-        data = await image.read()
-        image_url = upload_to_r2(data, key, image.content_type)
-    d = models.Dilemma(user_id=current_user.id, content=content, category=category, image_url=image_url)
-    db.add(d)
-    db.commit()
-    db.refresh(d)
-    return fmt(d)
+    try:
+        image_url = None
+        if image and image.filename:
+            ext = image.filename.rsplit('.', 1)[-1]
+            key = f"{uuid.uuid4()}.{ext}"
+            data = await image.read()
+            image_url = upload_to_r2(data, key, image.content_type)
+        
+        d = models.Dilemma(user_id=current_user.id, content=content, category=category, image_url=image_url)
+        db.add(d)
+        db.commit()
+        db.refresh(d)
+        return fmt(d)
+    except Exception as e:
+        # Log the error for debugging
+        import logging
+        logging.error(f"Error creating dilemma: {str(e)}")
+        raise HTTPException(500, f"Failed to create dilemma: {str(e)}")
 
 @router.post("/{dilemma_id}/vote")
 def vote(dilemma_id: int, body: VoteBody, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
