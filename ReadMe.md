@@ -10,6 +10,7 @@ A social platform where users can post moral/ethical dilemmas and the community 
 - [Database Schema](#-database-schema)
 - [API Documentation](#-api-documentation)
 - [Authentication System](#-authentication-system)
+- [Admin System](#-admin-system)
 - [Frontend Architecture](#-frontend-architecture)
 - [Backend Architecture](#-backend-architecture)
 - [File Upload System](#-file-upload-system)
@@ -37,7 +38,8 @@ A social platform where users can post moral/ethical dilemmas and the community 
 2. **Dilemma System**: CRUD operations for dilemmas with categories and images
 3. **Voting System**: Binary voting with statistics and user history
 4. **Social Features**: Comments, leaderboards, user interactions
-5. **AI Integration**: Planned civic dilemma analysis and recommendations
+5. **Admin System**: Moderation tools for content management
+6. **AI Integration**: Planned civic dilemma analysis and recommendations
 
 ## 🏗️ Technical Architecture
 
@@ -86,7 +88,7 @@ CREATE TABLE users (
 ```sql
 CREATE TABLE dilemmas (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) NOT NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
     content TEXT NOT NULL,
     category VARCHAR NOT NULL, -- 'personal' | 'community' | 'civic'
     outcome TEXT,
@@ -99,8 +101,8 @@ CREATE TABLE dilemmas (
 ```sql
 CREATE TABLE votes (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) NOT NULL,
-    dilemma_id INTEGER REFERENCES dilemmas(id) NOT NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    dilemma_id INTEGER REFERENCES dilemmas(id) ON DELETE CASCADE NOT NULL,
     choice VARCHAR NOT NULL, -- 'yes' | 'no'
     points_earned INTEGER DEFAULT 10,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -112,8 +114,8 @@ CREATE TABLE votes (
 ```sql
 CREATE TABLE comments (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) NOT NULL,
-    dilemma_id INTEGER REFERENCES dilemmas(id) NOT NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    dilemma_id INTEGER REFERENCES dilemmas(id) ON DELETE CASCADE NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -270,6 +272,21 @@ Set outcome for a dilemma (author only).
 }
 ```
 
+#### DELETE `/dilemmas/{dilemma_id}`
+Delete a dilemma (author or admin only).
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Authorization:** Author of dilemma OR admin user
+
+**Response:** `204 No Content`
+
+**Behavior:**
+- Validates user permission (author or admin)
+- Automatically deletes associated votes and comments
+- Removes dilemma record
+- Returns success status
+
 ### Voting Endpoints
 
 #### POST `/dilemmas/{dilemma_id}/vote`
@@ -347,6 +364,46 @@ Add comment to dilemma.
 - **Public Routes**: `/auth/*`, `/` (health check)
 - **Protected Routes**: All others require valid JWT token
 - **Automatic Redirects**: Unauthenticated users redirected to `/auth`
+
+## 🛡️ Admin System
+
+### Admin User Configuration
+
+Admin privileges are granted via environment variable configuration, not database roles. This allows for easy management without database migrations.
+
+- **Configuration**: Set `ADMIN_USERNAMES` environment variable with comma-separated usernames
+- **Example**: `ADMIN_USERNAMES="admin,moderator,supervisor"`
+- **Check**: `is_admin_user()` function validates against this list
+- **No Special Passwords**: Admins use regular user accounts and passwords
+
+### Admin Features
+
+#### Content Moderation
+- **Delete Any Dilemma**: Admins can delete posts from any user
+- **Cascade Deletion**: Automatically removes associated votes and comments
+- **Authorization Check**: Backend validates admin status before allowing deletion
+
+#### User Profile Enhancement
+- **Admin Indicator**: `is_admin: true` returned in user profile API
+- **Frontend Logic**: Delete buttons shown for admins on all dilemmas
+- **UI Feedback**: Clear visual indicators for admin actions
+
+### Admin API Endpoints
+
+#### DELETE `/dilemmas/{dilemma_id}`
+Delete a dilemma (admin or author only).
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Authorization:** Author of dilemma OR admin user
+
+**Response:** `204 No Content` (successful deletion)
+
+**Behavior:**
+- Validates user permission
+- Deletes associated votes and comments
+- Removes dilemma record
+- Returns success status
 
 ## 🎨 Frontend Architecture
 
@@ -496,6 +553,12 @@ R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-...r2.dev")
 - **Size Limits**: Client-side and potential server-side limits
 - **Public Access**: Images stored publicly accessible
 - **Unique Names**: UUID prevents filename collisions
+
+### Recent Improvements
+
+- **R2 Connection**: Migrated from manual HTTP signing to boto3 for reliable uploads
+- **URL Generation**: Fixed public URL construction for proper image display
+- **Error Handling**: Enhanced upload failure handling and user feedback
 
 ## 🗳️ Voting System
 
