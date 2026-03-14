@@ -49,7 +49,7 @@ def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
             ContentType=content_type
         )
         
-        return f"{R2_PUBLIC_URL}/unihacks26/dilemmas/{key}"
+        return f"{R2_PUBLIC_URL}/unihacks26/{key}"
         
     except ClientError as e:
         logging.error(f"R2 upload failed: {str(e)}")
@@ -147,7 +147,7 @@ async def create_dilemma(content: str = Form(...), category: str = Form(...), im
         image_url = None
         if image and image.filename:
             ext = image.filename.rsplit('.', 1)[-1]
-            key = f"{uuid.uuid4()}.{ext}"
+            key = f"dilemmas/{uuid.uuid4()}.{ext}"
             data = await image.read()
             image_url = upload_to_r2(data, key, image.content_type)
         
