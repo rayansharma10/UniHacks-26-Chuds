@@ -3,6 +3,7 @@ import { useFeedStore } from '../stores/feedStore'
 import api from '../lib/api'
 import { Globe } from 'lucide-react'
 import sidebarImage from '../assets/sidebar/image.png'
+import railImage from '../assets/sidebar/rail.png'
 
 const TYPE_ICONS = {
   suburb: '🏘️',
@@ -91,12 +92,18 @@ export default function RightPanel() {
 
       <div className="h-px bg-[#2a2a2a]" />
 
-      {/* Sidebar image */}
-      <div className="mt-auto pt-2">
+      {/* Sidebar images */}
+      <div className="mt-auto pt-2 flex gap-2">
+        <img
+          src={railImage}
+          alt=""
+          className="w-1/2 rounded-xl object-cover opacity-80"
+          style={{ maxHeight: '160px' }}
+        />
         <img
           src={sidebarImage}
           alt=""
-          className="w-full rounded-xl object-cover opacity-80"
+          className="w-1/2 rounded-xl object-cover opacity-80"
           style={{ maxHeight: '160px' }}
         />
       </div>
