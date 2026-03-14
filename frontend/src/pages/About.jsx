@@ -1,5 +1,8 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { Marquee } from '../components/ui/marquee';
+import { Globe } from '../components/ui/globe';
+import { Brain, Users, Shield, Flame } from 'lucide-react';
 
 export default function About() {
   const containerRef = useRef(null);
@@ -46,7 +49,13 @@ export default function About() {
           style={{ opacity: section1Opacity, scale: section1Scale, y: section1Y }}
           className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pointer-events-none"
         >
+          {/* Globe Background */}
+          <div className="absolute inset-x-0 bottom-[-20%] md:bottom-[-40%] z-0 flex items-center justify-center opacity-40 pointer-events-auto mix-blend-screen overflow-hidden">
+             <Globe className="scale-125 md:scale-150" />
+          </div>
+
           <motion.div
+             className="relative z-10"
              initial={{ scale: 0.9, opacity: 0 }}
              animate={{ scale: 1, opacity: 1 }}
              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
@@ -57,6 +66,34 @@ export default function About() {
             <p className="mt-6 text-xl md:text-3xl text-neutral-400 font-light tracking-wide max-w-2xl mx-auto">
               Decide the Undecidable
             </p>
+            <div className="w-full mt-16 max-w-[100vw] overflow-hidden -mx-4 pointer-events-auto">
+              <Marquee className="max-w-5xl mx-auto" fade={true} pauseOnHover={true}>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <Brain className="w-8 h-8 text-[#ff6b4a]" />
+                  <span className="text-2xl font-medium text-white/90">Ethics</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <Users className="w-8 h-8 text-[#6b4aff]" />
+                  <span className="text-2xl font-medium text-white/90">Society</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=100&h=100" className="w-12 h-12 rounded-full object-cover border border-white/20" alt="Tech" />
+                  <span className="text-2xl font-medium text-white/90">Culture</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <Shield className="w-8 h-8 text-[#2bf06d]" />
+                  <span className="text-2xl font-medium text-white/90">Truth</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=100&h=100" className="w-12 h-12 rounded-full object-cover border border-white/20" alt="Globe" />
+                  <span className="text-2xl font-medium text-white/90">Humanity</span>
+                </div>
+                <div className="flex items-center gap-4 mx-8 py-4">
+                  <Flame className="w-8 h-8 text-[#ff4a4a]" />
+                  <span className="text-2xl font-medium text-white/90">Debate</span>
+                </div>
+              </Marquee>
+            </div>
           </motion.div>
           <motion.div
             initial={{ opacity: 0 }}
