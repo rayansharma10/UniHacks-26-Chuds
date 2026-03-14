@@ -128,6 +128,13 @@ def fmt(d: models.Dilemma):
         "created_at": d.created_at.isoformat(),
     }
 
+
+def _is_admin_user(user: models.User) -> bool:
+    """Utility for checking if a user is an admin based on env settings."""
+    from ..auth import is_admin_user
+
+    return is_admin_user(user)
+
 @router.get("")
 def list_dilemmas(category: Optional[str] = None, community: Optional[str] = None, db: Session = Depends(get_db)):
     q = db.query(models.Dilemma)
@@ -161,6 +168,24 @@ async def create_dilemma(content: str = Form(...), category: str = Form(...), im
         import logging
         logging.error(f"Error creating dilemma: {str(e)}")
         raise HTTPException(500, f"Failed to create dilemma: {str(e)}")
+
+
+@router.delete("/{dilemma_id}", status_code=204)
+def delete_dilemma(dilemma_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """Delete a dilemma. Only the author or an admin can delete."""
+    d = db.query(models.Dilemma).filter(models.Dilemma.id == dilemma_id).first()
+    if not d:
+        raise HTTPException(404, "Dilemma not found")
+
+    if d.user_id != current_user.id and not _is_admin_user(current_user):
+        raise HTTPException(403, "Not authorized to delete this dilemma")
+
+    # Remove related child records first for integrity
+    db.query(models.Vote).filter(models.Vote.dilemma_id == dilemma_id).delete()
+    db.query(models.Comment).filter(models.Comment.dilemma_id == dilemma_id).delete()
+    db.delete(d)
+    db.commit()
+    return None
 
 @router.post("/{dilemma_id}/vote")
 def vote(dilemma_id: int, body: VoteBody, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
