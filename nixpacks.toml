@@ -1,5 +1,6 @@
 [phases.setup]
-nixPkgs = ["nodejs_22"]
+nixPkgs = ["nodejs_20"]
+nixLibs = []
 
 [phases.install]
 cmds = ["cd frontend && npm install"]
