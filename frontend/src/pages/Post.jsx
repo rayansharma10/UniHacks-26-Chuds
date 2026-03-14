@@ -13,7 +13,13 @@ export default function Post() {
   const [preview, setPreview] = useState(null)
   const fileRef = useRef()
   const navigate = useNavigate()
-  const qc = useQueryClient()
+  const [testResult, setTestResult] = useState(null)
+
+  const testConnection = useMutation({
+    mutationFn: () => api.get('/dilemmas/test-connection'),
+    onSuccess: (data) => setTestResult(data.data),
+    onError: (error) => setTestResult({ success: false, error: error.message })
+  })
 
   const handleImage = (e) => {
     const file = e.target.files[0]
@@ -99,6 +105,25 @@ export default function Post() {
       {category === 'civic' && (
         <div className="bg-[#ff6b4a]/10 border border-[#ff6b4a]/20 rounded-xl p-4 text-sm text-[#f0f0f0]">
           🏛️ Civic dilemmas get synthesised by AI into formal recommendations for government teams.
+        </div>
+      )}
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => testConnection.mutate()}
+          disabled={testConnection.isPending}
+          className="flex-1 py-3 rounded-xl bg-[#2a2a2a] text-[#888] font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity hover:bg-[#3a3a3a] hover:text-white"
+        >
+          {testConnection.isPending && <Loader2 size={16} className="animate-spin" />}
+          Test R2 Connection
+        </button>
+      </div>
+
+      {testResult && (
+        <div className={`p-3 rounded-xl text-sm ${testResult.success ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
+          <div className="font-semibold">{testResult.success ? '✅ Connection Successful' : '❌ Connection Failed'}</div>
+          {testResult.buckets && <div>Buckets: {testResult.buckets.join(', ')}</div>}
+          {testResult.error && <div>Error: {testResult.error}</div>}
         </div>
       )}
 
