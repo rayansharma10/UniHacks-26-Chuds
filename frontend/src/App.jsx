@@ -12,13 +12,23 @@ import Auth from './pages/Auth'
 import AI from './pages/AI'
 
 export default function App() {
-  const { token, fetchMe } = useAuthStore()
+  const { token, user, fetchMe } = useAuthStore()
   const location = useLocation()
   const isAuth = location.pathname === '/auth'
 
   useEffect(() => {
-    if (token) fetchMe()
-  }, [token])
+    if (token && !user) fetchMe()
+  }, [token, user])
+
+  // If not authenticated and not on auth page, redirect to auth
+  if (!token && !isAuth) {
+    return <Navigate to="/auth" replace />
+  }
+
+  // If authenticated and on auth page, redirect to home
+  if (token && isAuth) {
+    return <Navigate to="/" replace />
+  }
 
   if (isAuth) return <Auth />
 
