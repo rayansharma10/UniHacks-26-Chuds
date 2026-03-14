@@ -1,11 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Flame, PlusCircle, Trophy, User, Zap, Sparkles, LogOut } from 'lucide-react'
+import { Flame, PlusCircle, Trophy, User, Zap, Sparkles, LogOut, Info } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 
 const links = [
   { to: '/', icon: Flame, label: 'Feed' },
   { to: '/post', icon: PlusCircle, label: 'Post' },
   { to: '/leaderboard', icon: Trophy, label: 'Top Voices' },
+  { to: '/about', icon: Info, label: 'About' },
   { to: '/profile', icon: User, label: 'Profile' },
 ]
 
