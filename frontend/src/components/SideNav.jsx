@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Flame, PlusCircle, Trophy, User, Zap, Sparkles, LogOut } from 'lucide-react'
+import { Flame, PlusCircle, Trophy, User, Zap, Sparkles } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 
 const links = [
@@ -56,30 +56,21 @@ export default function SideNav() {
         </span>
       </NavLink>
 
-      {/* User pill + sign out at bottom */}
-      <div className="mt-auto flex flex-col gap-1">
+      {/* User pill at bottom */}
+      <div className="mt-auto">
         {user ? (
-          <>
-            <div
-              onClick={() => navigate('/profile')}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#ff6b4a]/20 flex items-center justify-center font-bold text-[#ff6b4a] text-sm shrink-0">
-                {user.username[0].toUpperCase()}
-              </div>
-              <div className="overflow-hidden">
-                <p className="text-sm font-semibold truncate">{user.username}</p>
-                <p className="text-xs text-[#888]">{user.points ?? 0} pts</p>
-              </div>
+          <div
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors"
+          >
+            <div className="w-8 h-8 rounded-full bg-[#ff6b4a]/20 flex items-center justify-center font-bold text-[#ff6b4a] text-sm shrink-0">
+              {user.username[0].toUpperCase()}
             </div>
-            <button
-              onClick={logout}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#888] hover:text-white hover:bg-white/5 transition-colors w-full"
-            >
-              <LogOut size={18} />
-              Sign out
-            </button>
-          </>
+            <div className="overflow-hidden">
+              <p className="text-sm font-semibold truncate">{user.username}</p>
+              <p className="text-xs text-[#888]">{user.points ?? 0} pts</p>
+            </div>
+          </div>
         ) : (
           <NavLink
             to="/auth"

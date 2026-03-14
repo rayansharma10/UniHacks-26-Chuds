@@ -3,10 +3,10 @@ import { useAuthStore } from '../stores/authStore'
 import { useNavigate } from 'react-router-dom'
 import api from '../lib/api'
 import DilemmaCard from '../components/DilemmaCard'
-import { Loader2 } from 'lucide-react'
+import { LogOut, Loader2 } from 'lucide-react'
 
 export default function Profile() {
-  const { user } = useAuthStore()
+  const { user, logout } = useAuthStore()
   const navigate = useNavigate()
 
   const { data: myDilemmas, isLoading } = useQuery({
