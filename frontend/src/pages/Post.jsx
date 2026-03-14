@@ -11,10 +11,16 @@ export default function Post() {
   const [category, setCategory] = useState('personal')
   const [image, setImage] = useState(null)
   const [preview, setPreview] = useState(null)
+  const [selectedCommunity, setSelectedCommunity] = useState(null)
   const fileRef = useRef()
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [testResult, setTestResult] = useState(null)
+
+  const { data: communities = [] } = useQuery({
+    queryKey: ['communities'],
+    queryFn: () => api.get('/communities').then((r) => r.data),
+  })
 
   const testConnection = useMutation({
     mutationFn: () => api.get('/dilemmas/test-connection'),
@@ -40,6 +46,7 @@ export default function Post() {
       const fd = new FormData()
       fd.append('content', content)
       fd.append('category', category)
+      if (selectedCommunity) fd.append('community_id', selectedCommunity)
       if (image) fd.append('image', image)
       return api.post('/dilemmas', fd)
     },
@@ -101,6 +108,22 @@ export default function Post() {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <p className="text-sm text-[#888] font-medium">Post to Community</p>
+        <select
+          value={selectedCommunity ?? ''}
+          onChange={(e) => setSelectedCommunity(e.target.value ? parseInt(e.target.value) : null)}
+          className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-3 text-sm text-[#f0f0f0] focus:outline-none focus:border-[#ff6b4a] transition-colors appearance-none"
+        >
+          <option value="">Global / No Community</option>
+          {communities.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.icon} {c.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {category === 'civic' && (

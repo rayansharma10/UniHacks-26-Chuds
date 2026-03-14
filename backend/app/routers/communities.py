@@ -1,16 +1,34 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from ..database import get_db
+from .. import models
 
 router = APIRouter(prefix="/communities", tags=["communities"])
 
-# Placeholder — communities will be DB-backed in a future sprint
-COMMUNITIES = [
-    {"id": 1, "slug": "fitzroy",      "name": "Fitzroy",      "type": "suburb", "members": 1240, "icon": "🏘️"},
-    {"id": 2, "slug": "unimelb",      "name": "UniMelb",      "type": "school", "members": 8300, "icon": "🎓"},
-    {"id": 3, "slug": "acme-corp",    "name": "Acme Corp",    "type": "work",   "members":  430, "icon": "💼"},
-    {"id": 4, "slug": "northside-fc", "name": "Northside FC", "type": "club",   "members":  180, "icon": "⚽"},
-    {"id": 5, "slug": "inner-north",  "name": "Inner North",  "type": "suburb", "members": 3100, "icon": "🏙️"},
-]
+def seed_communities(db: Session):
+    communities = [
+        {"slug": "parramatta",  "name": "Parramatta",  "type": "suburb", "icon": "🏙️"},
+        {"slug": "unsw",        "name": "UNSW",        "type": "school", "icon": "🎓"},
+        {"slug": "sydney",      "name": "Sydney",      "type": "city",   "icon": "🌆"},
+        {"slug": "carlingford", "name": "Carlingford", "type": "suburb", "icon": "🏘️"},
+    ]
+    
+    for c_data in communities:
+        existing = db.query(models.Community).filter(models.Community.slug == c_data["slug"]).first()
+        if not existing:
+            new_c = models.Community(**c_data)
+            db.add(new_c)
+    db.commit()
 
 @router.get("")
-def list_communities():
-    return COMMUNITIES
+def list_communities(db: Session = Depends(get_db)):
+    # Simple seeding on list if empty
+    count = db.query(models.Community).count()
+    if count == 0:
+        seed_communities(db)
+        
+    return db.query(models.Community).all()
+
+@router.get("/{slug}")
+def get_community(slug: str, db: Session = Depends(get_db)):
+    return db.query(models.Community).filter(models.Community.slug == slug).first()
