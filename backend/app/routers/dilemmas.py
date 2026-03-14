@@ -15,16 +15,16 @@ import logging
 # Log R2 configuration on startup
 print("=== R2 CONFIGURATION CHECK ===")
 print(f"R2_ACCOUNT_ID: {os.getenv('R2_ACCOUNT_ID', 'NOT SET')}")
-print(f"R2_ACCESS_KEY_ID: {'SET' if os.getenv('R2_ACCESS_KEY_ID') else 'NOT SET'}")
-print(f"R2_SECRET_ACCESS_KEY: {'SET' if os.getenv('R2_SECRET_ACCESS_KEY') else 'NOT SET'}")
+print(f"R2_ACCESS_KEY: {'SET' if os.getenv('R2_ACCESS_KEY') else 'NOT SET'}")
+print(f"R2_SECRET_KEY: {'SET' if os.getenv('R2_SECRET_KEY') else 'NOT SET'}")
 print(f"R2_BUCKET_NAME: {os.getenv('R2_BUCKET_NAME', 'NOT SET')}")
 print(f"R2_PUBLIC_URL: {os.getenv('R2_PUBLIC_URL', 'NOT SET')}")
 print("================================")
 
 R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID")
-R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY_ID")  # Updated to match Railway env var
-R2_SECRET_KEY = os.getenv("R2_SECRET_ACCESS_KEY")  # Updated to match Railway env var
-R2_BUCKET     = os.getenv("R2_BUCKET_NAME", "unihacks26")  # Updated to match Railway env var
+R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY")  # Match Railway variable name
+R2_SECRET_KEY = os.getenv("R2_SECRET_KEY")  # Match Railway variable name
+R2_BUCKET     = os.getenv("R2_BUCKET_NAME", "unihacks26")
 R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
 
 def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
