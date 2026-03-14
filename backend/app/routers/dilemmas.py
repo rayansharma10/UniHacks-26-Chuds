@@ -1,5 +1,6 @@
 import uuid
 import boto3
+from io import BytesIO
 from botocore.client import Config
 from fastapi import APIRouter, Depends, HTTPException, Form, UploadFile, File
 from sqlalchemy.orm import Session
@@ -11,9 +12,9 @@ from .. import models
 import os
 
 R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID")
-R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY")
-R2_SECRET_KEY = os.getenv("R2_SECRET_KEY")
-R2_BUCKET     = os.getenv("R2_BUCKET", "unihacks26")
+R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY_ID")  # Updated to match Railway env var
+R2_SECRET_KEY = os.getenv("R2_SECRET_ACCESS_KEY")  # Updated to match Railway env var
+R2_BUCKET     = os.getenv("R2_BUCKET_NAME", "unihacks26")  # Updated to match Railway env var
 R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
 
 def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
@@ -25,23 +26,44 @@ def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
         endpoint_url=f'https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com',
         aws_access_key_id=R2_ACCESS_KEY,
         aws_secret_access_key=R2_SECRET_KEY,
-        config=Config(signature_version='s3v4'),
-        region_name='auto'
+        config=Config(
+            signature_version='s3v4',
+            s3={'addressing_style': 'path'},
+            retries={'max_attempts': 3}
+        )
     )
 
     try:
-        s3_client.put_object(
-            Bucket=R2_BUCKET,
-            Key=key,
-            Body=data,
-            ContentType=content_type,
-            ACL='public-read'
+        # Convert bytes to file-like object for upload_fileobj
+        file_obj = BytesIO(data)
+        
+        s3_client.upload_fileobj(
+            file_obj,
+            R2_BUCKET,
+            key
         )
-        return f"{R2_PUBLIC_URL}/{key}"
+        
+        return f"{R2_PUBLIC_URL}/unihacks26/dilemmas/{key}"
     except Exception as e:
         raise HTTPException(500, f"R2 upload failed: {str(e)}")
 
 router = APIRouter(prefix="/dilemmas", tags=["dilemmas"])
+
+@router.get("/test-connection")
+def test_connection():
+    """Test R2 connection"""
+    try:
+        s3_client = boto3.client(
+            's3',
+            endpoint_url=f'https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com',
+            aws_access_key_id=R2_ACCESS_KEY,
+            aws_secret_access_key=R2_SECRET_KEY,
+            config=Config(signature_version='s3v4', s3={'addressing_style': 'path'})
+        )
+        response = s3_client.list_buckets()
+        return {"success": True, "buckets": [b['Name'] for b in response['Buckets']]}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 class VoteBody(BaseModel):
     choice: str
@@ -83,7 +105,7 @@ async def create_dilemma(content: str = Form(...), category: str = Form(...), im
     image_url = None
     if image and image.filename:
         ext = image.filename.rsplit('.', 1)[-1]
-        key = f"dilemmas/{uuid.uuid4()}.{ext}"
+        key = f"{uuid.uuid4()}.{ext}"
         data = await image.read()
         image_url = upload_to_r2(data, key, image.content_type)
     d = models.Dilemma(user_id=current_user.id, content=content, category=category, image_url=image_url)

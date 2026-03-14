@@ -105,7 +105,7 @@ export default function DilemmaCard({ dilemma }) {
         {/* Image */}
         {dilemma.image_url && (
           <img
-            src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${dilemma.image_url}`}
+            src={dilemma.image_url}
             alt="dilemma"
             className="w-full max-h-72 object-cover rounded-xl border border-[#2a2a2a]"
           />
