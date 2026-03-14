@@ -1,8 +1,11 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .database import engine, Base
+from .database import engine, Base, migrate_database
 from .routers import auth, users, dilemmas, communities
+
+# Run migrations
+migrate_database()
 
 # Create all tables on startup
 Base.metadata.create_all(bind=engine)
