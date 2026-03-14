@@ -3,10 +3,10 @@ import { useAuthStore } from '../stores/authStore'
 import { useNavigate } from 'react-router-dom'
 import api from '../lib/api'
 import DilemmaCard from '../components/DilemmaCard'
-import { LogOut, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 export default function Profile() {
-  const { user, logout } = useAuthStore()
+  const { user } = useAuthStore()
   const navigate = useNavigate()
 
   const { data: myDilemmas, isLoading } = useQuery({
@@ -30,24 +30,16 @@ export default function Profile() {
   }
 
   return (
-    <div className="px-6 pt-8 pb-20 md:pb-8 flex flex-col gap-6">
+    <div className="px-6 pt-8 pb-20 md:pb-8 flex flex-col gap-6 w-full">
       {/* Profile header */}
-      <div className="flex items-center justify-between max-w-xl">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-[#ff6b4a]/20 flex items-center justify-center text-2xl font-bold text-[#ff6b4a]">
-            {user.username[0].toUpperCase()}
-          </div>
-          <div>
-            <p className="font-bold text-lg">{user.username}</p>
-            <p className="text-sm text-[#888]">{user.email}</p>
-          </div>
+      <div className="flex items-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-[#ff6b4a]/20 flex items-center justify-center text-3xl font-bold text-[#ff6b4a] shrink-0">
+          {user.username[0].toUpperCase()}
         </div>
-        <button
-          onClick={logout}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 text-[#888] hover:text-white transition-colors text-sm"
-        >
-          <LogOut size={16} /> Sign out
-        </button>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-xl">{user.username}</p>
+          <p className="text-sm text-[#888]">{user.email}</p>
+        </div>
       </div>
 
       {/* Stats */}
@@ -71,7 +63,7 @@ export default function Profile() {
         </div>
       )}
 
-      <div className="flex flex-col gap-4 max-w-xl">
+      <div className="flex flex-col gap-4">
         {myDilemmas?.map((d) => <DilemmaCard key={d.id} dilemma={d} />)}
         {!isLoading && !myDilemmas?.length && (
           <p className="text-[#888] text-sm">You haven't posted any dilemmas yet.</p>
