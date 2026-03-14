@@ -33,4 +33,6 @@ def login(form: OAuth2PasswordRequestForm = Depends(), session: Session = Depend
     user = session.exec(select(User).where(User.username == form.username)).first()
     if not user or not verify_password(form.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    return {"access_token": create_access_token(user.username), "token_type": "bearer"}
+    token = create_access_token(user.username)
+    print(f"LOGIN OK: user={user.username} id={user.id} token_sub={user.username}")
+    return {"access_token": token, "token_type": "bearer"}

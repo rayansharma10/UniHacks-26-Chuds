@@ -50,11 +50,15 @@ def get_current_user(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
+        print(f"GET_CURRENT_USER: decoded sub={username}")
         if not username:
+            print("GET_CURRENT_USER: no username in token")
             raise exc
-    except JWTError:
+    except JWTError as e:
+        print(f"GET_CURRENT_USER: JWTError {e}")
         raise exc
     user = session.exec(select(User).where(User.username == username)).first()
+    print(f"GET_CURRENT_USER: db lookup result={user}")
     if not user:
         raise exc
     return user
