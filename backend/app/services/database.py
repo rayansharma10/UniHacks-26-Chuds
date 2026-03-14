@@ -22,11 +22,11 @@ def create_db_and_tables():
     # Safely add image_url if it doesn't exist (works on both SQLite and Postgres)
     from sqlalchemy import text, inspect
     inspector = inspect(engine)
-    if 'dilemma' in inspector.get_table_names():
-        existing = {col['name'] for col in inspector.get_columns('dilemma')}
+    if 'dilemmas' in inspector.get_table_names():
+        existing = {col['name'] for col in inspector.get_columns('dilemmas')}
         if 'image_url' not in existing:
             with engine.connect() as conn:
-                conn.execute(text('ALTER TABLE dilemma ADD COLUMN image_url VARCHAR'))
+                conn.execute(text('ALTER TABLE dilemmas ADD COLUMN image_url VARCHAR'))
                 conn.commit()
 
 

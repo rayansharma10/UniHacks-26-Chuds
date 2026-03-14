@@ -5,16 +5,19 @@ from datetime import datetime
 
 
 class UserCommunityLink(SQLModel, table=True):
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id", primary_key=True)
-    community_id: Optional[int] = Field(default=None, foreign_key="community.id", primary_key=True)
+    __tablename__ = "usercommunitylink"
+    user_id: Optional[int] = Field(default=None, foreign_key="users.id", primary_key=True)
+    community_id: Optional[int] = Field(default=None, foreign_key="communities.id", primary_key=True)
 
 
 class DilemmaCommunitLink(SQLModel, table=True):
-    dilemma_id: Optional[int] = Field(default=None, foreign_key="dilemma.id", primary_key=True)
-    community_id: Optional[int] = Field(default=None, foreign_key="community.id", primary_key=True)
+    __tablename__ = "dilemmacommunitlink"
+    dilemma_id: Optional[int] = Field(default=None, foreign_key="dilemmas.id", primary_key=True)
+    community_id: Optional[int] = Field(default=None, foreign_key="communities.id", primary_key=True)
 
 
 class User(SQLModel, table=True):
+    __tablename__ = "users"
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(unique=True, index=True)
     email: str = Field(unique=True, index=True)
@@ -29,6 +32,7 @@ class User(SQLModel, table=True):
 
 
 class Community(SQLModel, table=True):
+    __tablename__ = "communities"
     id: Optional[int] = Field(default=None, primary_key=True)
     slug: str = Field(unique=True, index=True)
     name: str
@@ -41,8 +45,9 @@ class Community(SQLModel, table=True):
 
 
 class Dilemma(SQLModel, table=True):
+    __tablename__ = "dilemmas"
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
+    user_id: int = Field(foreign_key="users.id")
     category: str  # "personal" | "community" | "civic"
     content: str
     image_url: Optional[str] = None
@@ -56,9 +61,10 @@ class Dilemma(SQLModel, table=True):
 
 
 class Vote(SQLModel, table=True):
+    __tablename__ = "votes"
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
-    dilemma_id: int = Field(foreign_key="dilemma.id")
+    user_id: int = Field(foreign_key="users.id")
+    dilemma_id: int = Field(foreign_key="dilemmas.id")
     choice: str  # "yes" | "no"
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -67,9 +73,10 @@ class Vote(SQLModel, table=True):
 
 
 class Comment(SQLModel, table=True):
+    __tablename__ = "comments"
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
-    dilemma_id: int = Field(foreign_key="dilemma.id")
+    user_id: int = Field(foreign_key="users.id")
+    dilemma_id: int = Field(foreign_key="dilemmas.id")
     content: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
 

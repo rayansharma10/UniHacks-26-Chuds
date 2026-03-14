@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.services.database import create_db_and_tables
-from app.routers import users, decisions, comments, votes, leaderboard, about, communities, auth
+from app.routers import users, decisions, comments, votes, leaderboard, about, auth
 
 
 @asynccontextmanager
