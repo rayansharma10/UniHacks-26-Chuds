@@ -20,13 +20,15 @@ export const useAuthStore = create((set) => ({
   logout: () => {
     localStorage.removeItem('token')
     set({ user: null, token: null })
+    window.location.href = '/auth'
   },
 
   fetchMe: async () => {
     try {
       const { data } = await api.get('/users/me')
       set({ user: data })
-    } catch {
+    } catch (error) {
+      console.log('Token invalid, logging out:', error)
       localStorage.removeItem('token')
       set({ user: null, token: null })
     }
