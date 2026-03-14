@@ -3,7 +3,6 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { Marquee } from '../components/ui/marquee';
 import { Globe } from '../components/ui/globe';
 import { AuroraBackground } from '../components/ui/aurora-background';
-import DisplayCards from '../components/ui/display-cards';
 import { Brain, Users, Shield, Flame } from 'lucide-react';
 
 export default function About() {
@@ -18,15 +17,30 @@ export default function About() {
   const section1Scale = useTransform(scrollYProgress, [0, 0.15], [1, 0.8]);
   const section1Y = useTransform(scrollYProgress, [0, 0.15], [0, -100]);
 
-  // Section 2: 12% to 35% scroll range (Marquee / Tech Specs)
-  const sectionMMOpacity = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [0, 1, 1, 0]);
-  const sectionMMY = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [100, 0, 0, -100]);
-  const sectionMMScale = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [0.9, 1, 1, 0.9]);
+  // Section 2: Marquee & Specs
+  const s2TitleX = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [-200, 0, 0, 200]);
+  const s2TitleY = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [100, 0, 0, -100]);
+  const s2TitleRotate = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [-10, 0, 0, 10]);
+  const s2TitleOpacity = useTransform(scrollYProgress, [0.12, 0.2, 0.3, 0.35], [0, 1, 1, 0]);
 
-  // Section 3: 32% to 60% scroll range (Features / Display Cards)
-  const section2Opacity = useTransform(scrollYProgress, [0.32, 0.45, 0.55, 0.6], [0, 1, 1, 0]);
-  const section2Y = useTransform(scrollYProgress, [0.32, 0.45, 0.55, 0.6], [100, 0, 0, -100]);
-  const section2Scale = useTransform(scrollYProgress, [0.32, 0.45, 0.55, 0.6], [0.9, 1, 1, 0.9]);
+  const s2MarqueeX = useTransform(scrollYProgress, [0.15, 0.22, 0.28, 0.35], [200, 0, 0, -200]);
+  const s2MarqueeY = useTransform(scrollYProgress, [0.15, 0.22, 0.28, 0.35], [50, 0, 0, 150]);
+  const s2MarqueeRotate = useTransform(scrollYProgress, [0.15, 0.22, 0.28, 0.35], [5, 0, 0, -5]);
+  const s2MarqueeOpacity = useTransform(scrollYProgress, [0.15, 0.22, 0.28, 0.35], [0, 1, 1, 0]);
+
+  // Section 3: Features
+  const s3TitleX = useTransform(scrollYProgress, [0.32, 0.42, 0.52, 0.6], [200, 0, 0, -200]);
+  const s3TitleY = useTransform(scrollYProgress, [0.32, 0.42, 0.52, 0.6], [80, 0, 0, -80]);
+  const s3TitleRotate = useTransform(scrollYProgress, [0.32, 0.42, 0.52, 0.6], [10, 0, 0, -10]);
+  const s3TitleOpacity = useTransform(scrollYProgress, [0.32, 0.42, 0.52, 0.6], [0, 1, 1, 0]);
+
+  const s3TextX = useTransform(scrollYProgress, [0.35, 0.45, 0.55, 0.6], [-100, 0, 0, 100]);
+  const s3TextY = useTransform(scrollYProgress, [0.35, 0.45, 0.55, 0.6], [100, 0, 0, 100]);
+  const s3TextOpacity = useTransform(scrollYProgress, [0.35, 0.45, 0.55, 0.6], [0, 1, 1, 0]);
+
+  const s3GridScale = useTransform(scrollYProgress, [0.38, 0.48, 0.55, 0.6], [0.5, 1, 1, 0.5]);
+  const s3GridY = useTransform(scrollYProgress, [0.38, 0.48, 0.55, 0.6], [150, 0, 0, 150]);
+  const s3GridOpacity = useTransform(scrollYProgress, [0.38, 0.48, 0.55, 0.6], [0, 1, 1, 0]);
 
   // Section 4: 55% to 80% scroll range (AI)
   const section3Opacity = useTransform(scrollYProgress, [0.55, 0.65, 0.75, 0.8], [0, 1, 1, 0]);
@@ -91,14 +105,17 @@ export default function About() {
         </motion.div>
 
         {/* Section 1.5: Marquee & Specs */}
-        <motion.div 
-          style={{ opacity: sectionMMOpacity, y: sectionMMY, scale: sectionMMScale }}
-          className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-12 lg:px-24 text-center pointer-events-none"
-        >
-          <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tight text-white drop-shadow-lg">
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-12 lg:px-24 text-center pointer-events-none overflow-hidden">
+          <motion.h2 
+            style={{ opacity: s2TitleOpacity, y: s2TitleY, x: s2TitleX, rotateZ: s2TitleRotate }}
+            className="text-4xl md:text-6xl font-black mb-8 tracking-tight text-white drop-shadow-lg"
+          >
             Powering Next-Gen Discourse
-          </h2>
-          <div className="w-full mt-12 max-w-[100vw] overflow-hidden -mx-4 pointer-events-auto">
+          </motion.h2>
+          <motion.div 
+            style={{ opacity: s2MarqueeOpacity, y: s2MarqueeY, x: s2MarqueeX, rotateZ: s2MarqueeRotate }}
+            className="w-[120vw] mt-12 max-w-[120vw] -mx-[10vw] pointer-events-auto"
+          >
               <Marquee className="max-w-5xl mx-auto" fade={true} pauseOnHover={true}>
                 <div className="flex items-center gap-4 mx-8 py-4">
                   <span className="text-3xl font-bold text-[#61DAFB]">React 19</span>
@@ -148,54 +165,44 @@ export default function About() {
                   <span className="text-2xl font-medium text-white/90">Debate</span>
                 </div>
               </Marquee>
-            </div>
-        </motion.div>
+            </motion.div>
+        </div>
 
         {/* Section 2: Features */}
-        <motion.div 
-          style={{ opacity: section2Opacity, y: section2Y, scale: section2Scale }}
-          className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-12 lg:px-24 text-center pointer-events-none"
-        >
-          <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-white drop-shadow-lg">
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-12 lg:px-24 text-center pointer-events-none overflow-hidden">
+          <motion.h2 
+            style={{ opacity: s3TitleOpacity, y: s3TitleY, x: s3TitleX, rotateZ: s3TitleRotate }}
+            className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-white drop-shadow-lg"
+          >
             A New Paradigm of Choice
-          </h2>
-          <p className="max-w-3xl text-lg md:text-xl text-neutral-400 leading-relaxed font-light mx-auto">
+          </motion.h2>
+          <motion.p 
+            style={{ opacity: s3TextOpacity, y: s3TextY, x: s3TextX }}
+            className="max-w-3xl text-lg md:text-xl text-neutral-400 leading-relaxed font-light mx-auto"
+          >
             Every day, humanity faces a myriad of moral choices. 
             <span className="text-white font-medium"> Parallel </span> 
             brings these dilemmas to light. Vote, debate, and see where you stand among thousands of thinkers.
-          </p>
-          <div className="mt-16 w-full max-w-4xl mx-auto flex items-center justify-center min-h-[400px]">
-            <DisplayCards cards={[
-               {
-                 icon: <Users className="size-5 text-[#ff6b4a]" />,
-                 title: "Personal",
-                 description: "Intimate and introspective problems.",
-                 date: "Explore Now",
-                 iconClassName: "text-[#ff6b4a]",
-                 titleClassName: "text-white",
-                 className: "[grid-area:stack] hover:-translate-y-10 before:absolute before:w-[100%] before:outline-1 before:rounded-xl before:outline-white/10 before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/50 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration:700 hover:grayscale-0 before:left-0 before:top-0 border-[#ff6b4a]/30",
-               },
-               {
-                 icon: <Brain className="size-5 text-[#6b4aff]" />,
-                 title: "Community",
-                 description: "Issues affecting your local circle.",
-                 date: "Discover",
-                 iconClassName: "text-[#6b4aff]",
-                 titleClassName: "text-white",
-                 className: "[grid-area:stack] translate-x-12 translate-y-10 hover:-translate-y-1 before:absolute before:w-[100%] before:outline-1 before:rounded-xl before:outline-white/10 before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/50 grayscale-[100%] hover:before:opacity-0 before:transition-opacity before:duration:700 hover:grayscale-0 before:left-0 before:top-0 border-[#6b4aff]/30",
-               },
-               {
-                 icon: <Shield className="size-5 text-[#2bf06d]" />,
-                 title: "Civic",
-                 description: "Societal and grand-scale dilemmas.",
-                 date: "Debate",
-                 iconClassName: "text-[#2bf06d]",
-                 titleClassName: "text-white",
-                 className: "[grid-area:stack] translate-x-24 translate-y-20 hover:translate-y-10 border-[#2bf06d]/30",
-               },
-            ]} />
-          </div>
-        </motion.div>
+          </motion.p>
+          <motion.div 
+            style={{ opacity: s3GridOpacity, y: s3GridY, scale: s3GridScale }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 w-full max-w-6xl mx-auto pointer-events-auto"
+          >
+            {[
+              { title: "Personal", desc: "Intimate and introspective problems.", icon: <Users className="size-8 text-[#ff6b4a]" />, color: "border-[#ff6b4a]/20" },
+              { title: "Community", desc: "Issues affecting your local circle.", icon: <Brain className="size-8 text-[#6b4aff]" />, color: "border-[#6b4aff]/20" },
+              { title: "Civic", desc: "Societal and grand-scale dilemmas.", icon: <Shield className="size-8 text-[#2bf06d]" />, color: "border-[#2bf06d]/20" }
+            ].map((feature, i) => (
+              <div key={i} className={`bg-neutral-900/50 border ${feature.color} backdrop-blur-xl rounded-3xl p-8 transform-gpu shadow-2xl hover:-translate-y-2 transition-transform duration-300 cursor-pointer`}>
+                <div className="text-4xl mb-6 bg-white/5 w-16 h-16 rounded-full flex items-center justify-center">{feature.icon}</div>
+                <h3 className="text-2xl font-bold mb-3 text-white">
+                  {feature.title}
+                </h3>
+                <p className="text-neutral-400 font-light text-sm">{feature.desc}</p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
 
         {/* Section 3: AI Judge */}
         <motion.div 
