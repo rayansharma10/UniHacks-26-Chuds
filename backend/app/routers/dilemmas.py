@@ -13,11 +13,13 @@ import os
 import logging
 
 # Log R2 configuration on startup
-logging.info(f"R2_ACCOUNT_ID: {os.getenv('R2_ACCOUNT_ID', 'NOT SET')}")
-logging.info(f"R2_ACCESS_KEY_ID: {'SET' if os.getenv('R2_ACCESS_KEY_ID') else 'NOT SET'}")
-logging.info(f"R2_SECRET_ACCESS_KEY: {'SET' if os.getenv('R2_SECRET_ACCESS_KEY') else 'NOT SET'}")
-logging.info(f"R2_BUCKET_NAME: {os.getenv('R2_BUCKET_NAME', 'NOT SET')}")
-logging.info(f"R2_PUBLIC_URL: {os.getenv('R2_PUBLIC_URL', 'NOT SET')}")
+print("=== R2 CONFIGURATION CHECK ===")
+print(f"R2_ACCOUNT_ID: {os.getenv('R2_ACCOUNT_ID', 'NOT SET')}")
+print(f"R2_ACCESS_KEY_ID: {'SET' if os.getenv('R2_ACCESS_KEY_ID') else 'NOT SET'}")
+print(f"R2_SECRET_ACCESS_KEY: {'SET' if os.getenv('R2_SECRET_ACCESS_KEY') else 'NOT SET'}")
+print(f"R2_BUCKET_NAME: {os.getenv('R2_BUCKET_NAME', 'NOT SET')}")
+print(f"R2_PUBLIC_URL: {os.getenv('R2_PUBLIC_URL', 'NOT SET')}")
+print("================================")
 
 R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID")
 R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY_ID")  # Updated to match Railway env var
