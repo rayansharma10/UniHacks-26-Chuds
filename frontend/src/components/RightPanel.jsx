@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useFeedStore } from '../stores/feedStore'
 import api from '../lib/api'
-import { Users, Hash, Globe } from 'lucide-react'
+import { Globe } from 'lucide-react'
+import sidebarImage from '../assets/sidebar/image.png'
 
 const TYPE_ICONS = {
   suburb: '🏘️',
@@ -86,6 +87,18 @@ export default function RightPanel() {
             <span className="text-xs shrink-0">{c.members}</span>
           </button>
         ))}
+      </div>
+
+      <div className="h-px bg-[#2a2a2a]" />
+
+      {/* Sidebar image */}
+      <div className="mt-auto pt-2">
+        <img
+          src={sidebarImage}
+          alt=""
+          className="w-full rounded-xl object-cover opacity-80"
+          style={{ maxHeight: '160px' }}
+        />
       </div>
 
     </aside>
