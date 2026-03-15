@@ -70,7 +70,7 @@ export default function RightPanel() {
                 : { color: 'var(--muted-foreground)' }
               }
             >
-              <span className="text-base w-5 text-center shrink-0">{c.icon || TYPE_ICONS[c.type] ?? '🌐'}</span>
+              <span className="text-base w-5 text-center shrink-0">{(c.icon || TYPE_ICONS[c.type]) ?? '🌐'}</span>
               <div className="flex-1 overflow-hidden">
                 <p className="truncate font-medium">{c.name}</p>
               </div>
