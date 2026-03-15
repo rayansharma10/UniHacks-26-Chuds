@@ -112,9 +112,9 @@ export default function About() {
           className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
         >
           <AuroraBackground className="absolute inset-0 z-0 h-screen w-full rounded-none px-4">
-            <div className="absolute inset-x-0 bottom-[-5%] md:bottom-[-20%] z-0 flex items-center justify-center opacity-50 mix-blend-screen overflow-hidden pointer-events-none w-full max-w-[1200px] mx-auto aspect-[1/1]">
+            <div className="absolute inset-x-0 top-[25%] md:top-[15%] z-0 flex items-center justify-center opacity-60 mix-blend-screen overflow-hidden pointer-events-none w-full max-w-[1200px] mx-auto aspect-[1/1]">
               <div className="w-full h-full pointer-events-auto flex items-center justify-center">
-                <Globe className="scale-[1.5] md:scale-[2] w-full h-full mt-32" />
+                <Globe className="scale-[1.5] md:scale-[2] w-full h-full -translate-y-12 md:-translate-y-24" />
               </div>
             </div>
 
