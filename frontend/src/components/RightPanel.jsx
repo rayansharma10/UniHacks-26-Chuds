@@ -73,7 +73,7 @@ export default function RightPanel() {
       <div className="h-px bg-[#2a2a2a]" />
 
       {/* Sidebar images */}
-      <div className="mt-auto pt-2 flex gap-3">
+      <div className="mt-auto pt-2 flex gap-2.5">
         <img
           src={railImage}
           alt=""
