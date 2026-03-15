@@ -18,6 +18,22 @@ def migrate_database():
     """Add missing columns/tables to existing database"""
     try:
         with engine.connect() as conn:
+            # Drop orphan tables created by the legacy SQLModel entrypoint.
+            # Link tables must go first to respect FK constraints.
+            ORPHAN_TABLES = [
+                "usercommunitylink",
+                "dilemmacommunitlink",
+                "comment",
+                "vote",
+                "dilemma",
+                "community",
+                "user",
+            ]
+            for table in ORPHAN_TABLES:
+                conn.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+            conn.commit()
+            print("Dropped orphan legacy tables (if any existed)")
+
             # Check if image_url column exists in dilemmas table
             result = conn.execute(text("""
                 SELECT column_name
