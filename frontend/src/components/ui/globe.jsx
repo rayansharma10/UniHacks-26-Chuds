@@ -66,8 +66,11 @@ export function Globe({ className, config = GLOBE_CONFIG }) {
     [r],
   )
 
+  const [hasError, setHasError] = useState(false);
+
   useEffect(() => {
     let width = 0;
+
     const onResize = () => {
       if (canvasRef.current && canvasRef.current.offsetWidth > 0) {
         width = canvasRef.current.offsetWidth;
@@ -80,24 +83,49 @@ export function Globe({ className, config = GLOBE_CONFIG }) {
     // If container forces 0 width, supply a safe fallback so the WebGL context doesn't die.
     if (width === 0) width = 600;
 
-    const globe = createGlobe(canvasRef.current, {
-      ...config,
-      width: width * 2,
-      height: width * 2,
-      onRender,
-    });
+    try {
+      const globe = createGlobe(canvasRef.current, {
+        ...config,
+        devicePixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
+        width: width * 2,
+        height: width * 2,
+        onRender,
+      });
 
-    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
         if (canvasRef.current) {
-            canvasRef.current.style.opacity = "1";
+          canvasRef.current.style.opacity = "1";
         }
-    });
+      });
 
-    return () => {
+      return () => {
         window.removeEventListener("resize", onResize);
         globe.destroy();
+      };
+    } catch (error) {
+      // If WebGL fails (e.g., on restricted environments), fall back gracefully.
+      console.warn("Globe failed to initialize:", error);
+      setHasError(true);
+      window.removeEventListener("resize", onResize);
     }
-  }, [])
+  }, []);
+
+  if (hasError) {
+    return (
+      <div
+        className={cn(
+          "absolute inset-0 mx-auto aspect-[1/1] w-full max-w-[600px]",
+          className,
+        )}
+      >
+        <div className="flex h-full w-full items-center justify-center rounded-xl bg-white/5 text-center text-sm text-white/70">
+          <span className="px-4">
+            Unable to show the interactive globe on this device. Try a different browser or device.
+          </span>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div
