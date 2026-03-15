@@ -17,19 +17,33 @@ class User(Base):
     votes    = relationship("Vote", back_populates="user", cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
 
+class Community(Base):
+    __tablename__ = "communities"
+    id          = Column(Integer, primary_key=True, index=True)
+    slug        = Column(String, unique=True, index=True, nullable=False)
+    name        = Column(String, nullable=False)
+    type        = Column(String, nullable=False)
+    icon        = Column(String, nullable=True)
+    members     = Column(Integer, default=0)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+
+    dilemmas = relationship("Dilemma", back_populates="community")
+
 class Dilemma(Base):
     __tablename__ = "dilemmas"
-    id         = Column(Integer, primary_key=True, index=True)
-    user_id    = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    content    = Column(Text, nullable=False)
-    category   = Column(String, nullable=False)  # personal | community | civic
-    outcome    = Column(Text, nullable=True)
-    image_url  = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    community_id = Column(Integer, ForeignKey("communities.id", ondelete="SET NULL"), nullable=True)
+    content      = Column(Text, nullable=False)
+    category     = Column(String, nullable=False)  # personal | community | civic
+    outcome      = Column(Text, nullable=True)
+    image_url    = Column(String, nullable=True)
+    created_at   = Column(DateTime(timezone=True), server_default=func.now())
 
-    author   = relationship("User", back_populates="dilemmas")
-    votes    = relationship("Vote", back_populates="dilemma", cascade="all, delete-orphan")
-    comments = relationship("Comment", back_populates="dilemma", cascade="all, delete-orphan")
+    author    = relationship("User", back_populates="dilemmas")
+    community = relationship("Community", back_populates="dilemmas")
+    votes     = relationship("Vote", back_populates="dilemma", cascade="all, delete-orphan")
+    comments  = relationship("Comment", back_populates="dilemma", cascade="all, delete-orphan")
 
 class Vote(Base):
     __tablename__ = "votes"

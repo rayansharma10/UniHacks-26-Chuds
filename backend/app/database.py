@@ -15,9 +15,25 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def migrate_database():
-    """Add missing columns to existing tables"""
+    """Add missing columns/tables to existing database"""
     try:
         with engine.connect() as conn:
+            # Drop orphan tables created by the legacy SQLModel entrypoint.
+            # Link tables must go first to respect FK constraints.
+            ORPHAN_TABLES = [
+                "usercommunitylink",
+                "dilemmacommunitlink",
+                "comment",
+                "vote",
+                "dilemma",
+                "community",
+                "user",
+            ]
+            for table in ORPHAN_TABLES:
+                conn.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+            conn.commit()
+            print("Dropped orphan legacy tables (if any existed)")
+
             # Check if image_url column exists in dilemmas table
             result = conn.execute(text("""
                 SELECT column_name
@@ -25,12 +41,39 @@ def migrate_database():
                 WHERE table_name = 'dilemmas' AND column_name = 'image_url'
             """))
             if not result.fetchone():
-                # Add the column
-                conn.execute(text("""
-                    ALTER TABLE dilemmas ADD COLUMN image_url VARCHAR
-                """))
+                conn.execute(text("ALTER TABLE dilemmas ADD COLUMN image_url VARCHAR"))
                 conn.commit()
                 print("Added image_url column to dilemmas table")
+
+            # Create communities table if it doesn't exist
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS communities (
+                    id SERIAL PRIMARY KEY,
+                    slug VARCHAR UNIQUE NOT NULL,
+                    name VARCHAR NOT NULL,
+                    type VARCHAR NOT NULL,
+                    icon VARCHAR,
+                    members INTEGER DEFAULT 0,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """))
+            conn.commit()
+            print("Ensured communities table exists")
+
+            # Add community_id to dilemmas if missing
+            result = conn.execute(text("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'dilemmas' AND column_name = 'community_id'
+            """))
+            if not result.fetchone():
+                conn.execute(text("""
+                    ALTER TABLE dilemmas
+                    ADD COLUMN community_id INTEGER REFERENCES communities(id) ON DELETE SET NULL
+                """))
+                conn.commit()
+                print("Added community_id column to dilemmas table")
+
     except Exception as e:
         print(f"Migration error: {e}")
         # Don't raise error to avoid crashing the app

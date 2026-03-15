@@ -115,16 +115,25 @@ class OutcomeBody(BaseModel):
 def fmt(d: models.Dilemma):
     yes = sum(1 for v in d.votes if v.choice == "yes")
     no  = sum(1 for v in d.votes if v.choice == "no")
+    
+    # Fix old or local uploads pointing to R2
+    final_image_url = d.image_url
+    if final_image_url and final_image_url.startswith("/uploads/"):
+        final_image_url = f"{R2_PUBLIC_URL}{final_image_url}"
+        
     return {
         "id": d.id,
         "user_id": d.user_id,
         "username": d.author.username,
+        "community_id": d.community_id,
+        "community_name": d.community.name if d.community else None,
+        "community_slug": d.community.slug if d.community else None,
         "content": d.content,
         "category": d.category,
         "outcome": d.outcome,
         "votes_yes": yes,
         "votes_no": no,
-        "image_url": d.image_url,
+        "image_url": final_image_url,
         "created_at": d.created_at.isoformat(),
     }
 
@@ -136,10 +145,12 @@ def _is_admin_user(user: models.User) -> bool:
     return is_admin_user(user)
 
 @router.get("")
-def list_dilemmas(category: Optional[str] = None, community: Optional[str] = None, db: Session = Depends(get_db)):
+def list_dilemmas(category: Optional[str] = None, community_slug: Optional[str] = None, db: Session = Depends(get_db)):
     q = db.query(models.Dilemma)
     if category:
         q = q.filter(models.Dilemma.category == category)
+    if community_slug:
+        q = q.join(models.Community).filter(models.Community.slug == community_slug)
     dilemmas = q.order_by(models.Dilemma.created_at.desc()).all()
     return [fmt(d) for d in dilemmas]
 
@@ -149,7 +160,14 @@ def my_dilemmas(db: Session = Depends(get_db), current_user: models.User = Depen
     return [fmt(d) for d in dilemmas]
 
 @router.post("", status_code=201)
-async def create_dilemma(content: str = Form(...), category: str = Form(...), image: Optional[UploadFile] = File(None), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+async def create_dilemma(
+    content: str = Form(...), 
+    category: str = Form(...), 
+    community_id: Optional[int] = Form(None),
+    image: Optional[UploadFile] = File(None), 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(get_current_user)
+):
     try:
         image_url = None
         if image and image.filename:
@@ -158,7 +176,13 @@ async def create_dilemma(content: str = Form(...), category: str = Form(...), im
             data = await image.read()
             image_url = upload_to_r2(data, key, image.content_type)
         
-        d = models.Dilemma(user_id=current_user.id, content=content, category=category, image_url=image_url)
+        d = models.Dilemma(
+            user_id=current_user.id, 
+            content=content, 
+            category=category, 
+            community_id=community_id,
+            image_url=image_url
+        )
         db.add(d)
         db.commit()
         db.refresh(d)

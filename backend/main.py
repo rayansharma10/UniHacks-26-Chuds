@@ -5,13 +5,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.services.database import create_db_and_tables
 from app.routers import users, decisions, comments, votes, leaderboard, about, auth
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    create_db_and_tables()
+    # NOTE: do NOT call create_db_and_tables() here — that used the legacy
+    # SQLModel stack and created orphan tables. Schema is managed by app/main.py.
     yield
 
 

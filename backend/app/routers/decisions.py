@@ -4,12 +4,30 @@ from app.services.database import get_session
 from app.services.models import Dilemma, Vote, User, Community, DilemmaCommunitLink, Comment
 from app.services.auth import get_current_user, get_current_user_optional
 from pydantic import BaseModel
+from botocore.client import Config
 from typing import Optional
 from datetime import datetime
-import shutil, uuid, os
+import uuid, os, logging
 
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID")
+R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY")
+R2_SECRET_KEY = os.getenv("R2_SECRET_KEY")
+R2_BUCKET     = os.getenv("R2_BUCKET_NAME", "unihacks26")
+R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "https://pub-9fa2791652c34967a1ec484b309e7fe9.r2.dev")
+
+def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
+    import boto3
+    from botocore.exceptions import ClientError
+    s3 = boto3.client(
+        's3',
+        endpoint_url=f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+        aws_access_key_id=R2_ACCESS_KEY,
+        aws_secret_access_key=R2_SECRET_KEY,
+        region_name='auto',
+        config=Config(signature_version='s3v4')
+    )
+    s3.put_object(Bucket=R2_BUCKET, Key=key, Body=data, ContentType=content_type)
+    return f"{R2_PUBLIC_URL}/{key}"
 
 router = APIRouter()
 
@@ -56,13 +74,17 @@ def _enrich(dilemma: Dilemma, session: Session, current_user: Optional[User] = N
             select(Vote).where(Vote.user_id == current_user.id, Vote.dilemma_id == dilemma.id)
         ).first()
         user_vote = existing.choice if existing else None
+    # Fix legacy /uploads/ paths to use R2 public URL
+    img = dilemma.image_url
+    if img and img.startswith("/uploads/"):
+        img = f"{R2_PUBLIC_URL}{img}"
     return DilemmaOut(
         id=dilemma.id,
         user_id=dilemma.user_id,
         username=user.username if user else "unknown",
         category=dilemma.category,
         content=dilemma.content,
-        image_url=dilemma.image_url,
+        image_url=img,
         votes_yes=yes,
         votes_no=no,
         user_vote=user_vote,
@@ -107,7 +129,7 @@ def get_my_dilemmas(
 
 
 @router.post("/dilemmas", response_model=DilemmaOut, status_code=201)
-def create_dilemma(
+async def create_dilemma(
     content: str = Form(...),
     category: str = Form(...),
     image: Optional[UploadFile] = File(None),
@@ -117,11 +139,13 @@ def create_dilemma(
     image_url = None
     if image and image.filename:
         ext = os.path.splitext(image.filename)[1]
-        filename = f"{uuid.uuid4().hex}{ext}"
-        path = os.path.join(UPLOAD_DIR, filename)
-        with open(path, "wb") as f:
-            shutil.copyfileobj(image.file, f)
-        image_url = f"/uploads/{filename}"
+        key = f"dilemmas/{uuid.uuid4().hex}{ext}"
+        data = await image.read()
+        try:
+            image_url = upload_to_r2(data, key, image.content_type or "image/jpeg")
+        except Exception as e:
+            logging.error(f"R2 upload failed: {e}")
+            raise HTTPException(500, f"Image upload failed: {e}")
     dilemma = Dilemma(user_id=current_user.id, content=content, category=category, image_url=image_url)
     session.add(dilemma)
     session.commit()
