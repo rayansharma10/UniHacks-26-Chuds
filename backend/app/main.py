@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base, migrate_database
-from .routers import auth, users, dilemmas, communities
+from .routers import auth, users, dilemmas, communities, admin
 
 # Run migrations
 migrate_database()
@@ -24,6 +24,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(dilemmas.router)
 app.include_router(communities.router)
+app.include_router(admin.router)
 
 @app.get("/")
 def health():
