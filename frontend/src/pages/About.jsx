@@ -172,10 +172,10 @@ export default function About() {
             <Marquee className="max-w-5xl mx-auto mt-4" fade pauseOnHover direction="right">
               {[
                 { label:'Ethics',   icon:<Brain className="w-8 h-8 text-[#ff6b4a]" /> },
-                { label:'Society',  icon:<Users className="w-8 h-8 text-[#6b4aff]" /> },
+                { label:'Community',  icon:<Users className="w-8 h-8 text-[#6b4aff]" /> },
                 { label:'Truth',    icon:<Shield className="w-8 h-8 text-[#2bf06d]" /> },
-                { label:'Debate',   icon:<Flame className="w-8 h-8 text-[#ff4a4a]" /> },
-                { label:'Humanity', icon:<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=100&h=100" className="w-12 h-12 rounded-full object-cover border border-white/20" alt="" /> },
+                { label:'Equality',   icon:<Flame className="w-8 h-8 text-[#ff4a4a]" /> },
+                
               ].map(({ label, icon }) => (
                 <div key={label} className="flex items-center gap-4 mx-8 py-4">
                   {icon}
@@ -192,15 +192,15 @@ export default function About() {
             style={{ ...s3TitleStyle, fontFamily: V }}
             className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-white drop-shadow-lg"
           >
-            A New Paradigm of Choice
+            A New Paradigm in Accountability
           </motion.h2>
           <motion.p
             style={{ ...s3TextStyle, fontFamily: V }}
             className="max-w-3xl text-lg md:text-xl text-neutral-400 leading-relaxed mx-auto"
           >
-            Every day, humanity faces a myriad of moral choices.{' '}
+            A platform connecting citizens and governments through transparent{' '}
             <span className="text-white font-medium">Polis</span>{' '}
-            brings these dilemmas to light. Vote, debate, and see where you stand among thousands of thinkers.
+            community-driven feedback on public services and infrastructure.
           </motion.p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 w-full max-w-6xl mx-auto pointer-events-auto">
             {[
@@ -266,7 +266,7 @@ export default function About() {
             style={{ ...s5BtnStyle, fontFamily: V }}
             className="pointer-events-auto mt-12 px-10 py-5 bg-white text-black text-lg font-bold rounded-full hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(255,107,74,0.4)] relative z-10"
           >
-            Start Voting Now
+            Start Contributing Now
           </motion.a>
         </div>
 

@@ -58,12 +58,12 @@ export default function Post() {
 
   return (
     <div className="px-8 pt-8 pb-20 md:pb-8 flex flex-col gap-6 w-full max-w-3xl mx-auto">
-      <h2 className="text-xl font-bold">Post a Dilemma</h2>
+      <h2 className="text-xl font-bold">Make Your Contribution</h2>
 
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="What's your dilemma? Be specific — the community will vote on it."
+        placeholder="What's going on in the community?"
         rows={6}
         className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 text-sm text-[#f0f0f0] placeholder-[#555] resize-none focus:outline-none focus:border-[#ff6b4a] transition-colors"
       />
@@ -117,7 +117,7 @@ export default function Post() {
           onChange={(e) => setSelectedCommunity(e.target.value ? parseInt(e.target.value) : null)}
           className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-3 text-sm text-[#f0f0f0] focus:outline-none focus:border-[#ff6b4a] transition-colors appearance-none"
         >
-          <option value="">Global / No Community</option>
+          <option value="">Global</option>
           {communities.map((c) => (
             <option key={c.id} value={c.id}>
               {c.icon} {c.name}
@@ -139,7 +139,7 @@ export default function Post() {
           className="flex-1 py-3 rounded-xl bg-[#2a2a2a] text-[#888] font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity hover:bg-[#3a3a3a] hover:text-white"
         >
           {testConnection.isPending && <Loader2 size={16} className="animate-spin" />}
-          Test R2 Connection
+          Test Server Connection (Demonstration Purposes)
         </button>
       </div>
 

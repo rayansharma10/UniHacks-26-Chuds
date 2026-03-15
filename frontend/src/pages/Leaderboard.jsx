@@ -39,7 +39,7 @@ export default function Leaderboard() {
             </div>
             {i === 0 && (
               <span className="text-xs bg-[#ff6b4a]/20 text-[#ff6b4a] px-2.5 py-1 rounded-full font-semibold">
-                Top Judge
+                Top Contributor
               </span>
             )}
           </div>

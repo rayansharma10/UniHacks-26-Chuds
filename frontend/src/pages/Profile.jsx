@@ -50,7 +50,7 @@ export default function Profile() {
         </div>
         <div className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a]">
           <p className="text-3xl font-bold text-[#ff6b4a]">#{user.season_rank ?? '—'}</p>
-          <p className="text-xs text-[#888] mt-1">Season Rank</p>
+          <p className="text-xs text-[#888] mt-1">Community Rank</p>
         </div>
       </div>
 
