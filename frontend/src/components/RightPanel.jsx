@@ -44,7 +44,7 @@ export default function RightPanel() {
       {/* My Communities */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between px-2 mb-1">
-          <p className="text-xs font-semibold text-[#555] uppercase tracking-wide">My Communities</p>
+          <p className="text-xs font-semibold text-[#555] uppercase tracking-wide">Communities (Coming soon!)</p>
           <button className="text-xs text-[#ff6b4a] hover:underline">+ Join</button>
         </div>
 
