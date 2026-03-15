@@ -15,56 +15,64 @@ const DILEMMAS = [
   {
     id: 1, user_id: 2, username: 'priya_v', category: 'personal',
     content: "My best friend got the job I applied for first. She doesn't know I applied. Do I tell her?",
-    votes_yes: 312, votes_no: 88,
+    option_a: 'Tell her', option_b: 'Keep quiet',
+    votes_a: 312, votes_b: 88, user_vote: null,
     outcome: "I told her. Awkward for a week but we're fine now — she appreciated the honesty.",
     created_at: '2025-03-10T09:00:00Z',
   },
   {
     id: 2, user_id: 3, username: 'tomasz_k', category: 'personal',
     content: "I found out my coworker is lying on their timesheet. We're friends. Do I report it?",
-    votes_yes: 198, votes_no: 241,
+    option_a: 'Report it', option_b: 'Stay quiet',
+    votes_a: 198, votes_b: 241, user_vote: null,
     outcome: null,
     created_at: '2025-03-11T11:30:00Z',
   },
   {
     id: 3, user_id: 1, username: 'jordanc', category: 'community',
     content: 'Our suburb has budget for ONE upgrade: a new skate park for teens or better lighting on the main walking trail. Which should the council prioritise?',
-    votes_yes: 540, votes_no: 390,
+    option_a: 'Skate park', option_b: 'Trail lighting',
+    votes_a: 540, votes_b: 390, user_vote: null,
     outcome: null,
     created_at: '2025-03-12T08:15:00Z',
   },
   {
     id: 4, user_id: 4, username: 'mei_l', category: 'civic',
     content: 'The Medicare online portal forces you to re-enter your personal details on every single visit — even when logged in. Should fixing this be a top priority for the next digital services sprint?',
-    votes_yes: 892, votes_no: 43,
+    option_a: 'Yes, prioritize', option_b: 'No, other issues',
+    votes_a: 892, votes_b: 43, user_vote: null,
     outcome: null,
     created_at: '2025-03-12T14:00:00Z',
   },
   {
     id: 5, user_id: 5, username: 'devraj', category: 'personal',
     content: "I've been offered a 40% pay rise to move to a competitor. My current team is in the middle of a critical project. Do I take it?",
-    votes_yes: 671, votes_no: 204,
+    option_a: 'Take the offer', option_b: 'Stay loyal',
+    votes_a: 671, votes_b: 204, user_vote: null,
     outcome: null,
     created_at: '2025-03-13T07:45:00Z',
   },
   {
     id: 6, user_id: 2, username: 'priya_v', category: 'community',
     content: 'The 24hr laundromat on Elm St wants to close at 10pm due to noise complaints from 3 residents. Hundreds of shift workers rely on it. Should the council override the complaints?',
-    votes_yes: 730, votes_no: 120,
+    option_a: 'Override complaints', option_b: 'Honor closures',
+    votes_a: 730, votes_b: 120, user_vote: null,
     outcome: null,
     created_at: '2025-03-13T10:00:00Z',
   },
   {
     id: 7, user_id: 3, username: 'tomasz_k', category: 'civic',
     content: 'Centrelink appointment wait times are averaging 6 weeks. Should the government fund 200 additional caseworkers before any other service improvement this year?',
-    votes_yes: 1100, votes_no: 89,
+    option_a: 'Hire caseworkers', option_b: 'Other priorities',
+    votes_a: 1100, votes_b: 89, user_vote: null,
     outcome: null,
     created_at: '2025-03-13T13:20:00Z',
   },
   {
     id: 8, user_id: 1, username: 'jordanc', category: 'personal',
     content: "My parents want me to move back home to save money. I'd save $1,400/month but lose all my independence. I'm 26. Do I do it?",
-    votes_yes: 445, votes_no: 388,
+    option_a: 'Move home', option_b: 'Stay independent',
+    votes_a: 445, votes_b: 388, user_vote: null,
     outcome: null,
     created_at: '2025-03-14T06:00:00Z',
   },
@@ -225,8 +233,11 @@ mock.onPost('/dilemmas').reply((config) => {
     username: currentUser.username,
     category: body.category,
     content: body.content,
-    votes_yes: 0,
-    votes_no: 0,
+    option_a: body.option_a || 'Yes',
+    option_b: body.option_b || 'No',
+    votes_a: 0,
+    votes_b: 0,
+    user_vote: null,
     outcome: null,
     created_at: new Date().toISOString(),
   }
@@ -240,10 +251,24 @@ mock.onPost(/\/dilemmas\/\d+\/vote/).reply((config) => {
   const { choice } = JSON.parse(config.data)
   const d = dilemmas.find((d) => d.id === id)
   if (!d) return [404, { detail: 'Not found' }]
-  if (choice === 'yes') d.votes_yes += 1
-  else d.votes_no += 1
-  currentUser.points += 10
-  return [200, { points_earned: 10, dilemma: d }]
+  
+  let pointsEarned = 0
+  if (d.user_vote === null) {
+    // First vote
+    pointsEarned = 10
+    currentUser.points += 10
+  }
+  
+  // Remove old vote if exists
+  if (d.user_vote === 'a') d.votes_a -= 1
+  else if (d.user_vote === 'b') d.votes_b -= 1
+  
+  // Add new vote
+  if (choice === 'a') d.votes_a += 1
+  else d.votes_b += 1
+  
+  d.user_vote = choice
+  return [200, { points_earned: pointsEarned, dilemma: d, message: pointsEarned > 0 ? 'Vote recorded' : 'Vote updated' }]
 })
 
 mock.onGet(/\/dilemmas\/\d+\/comments/).reply((config) => {

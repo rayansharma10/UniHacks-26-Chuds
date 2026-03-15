@@ -87,37 +87,49 @@ def seed_database(db: Session = Depends(get_db)):
             "content": "Should we prioritize fixing potholes on residential streets or expanding public transit routes?",
             "community": "roads",
             "author_index": 0,
-            "category": "civic"
+            "category": "civic",
+            "option_a": "Fix potholes",
+            "option_b": "Expand transit"
         },
         {
             "content": "Is it better to invest in bus rapid transit or light rail for our city?",
             "community": "transit",
             "author_index": 1,
-            "category": "civic"
+            "category": "civic",
+            "option_a": "Bus rapid transit",
+            "option_b": "Light rail"
         },
         {
             "content": "Should aging water infrastructure be replaced all at once or gradually?",
             "community": "water",
             "author_index": 2,
-            "category": "civic"
+            "category": "civic",
+            "option_a": "Replace all at once",
+            "option_b": "Replace gradually"
         },
         {
             "content": "Do we need to upgrade the power grid for renewable energy integration?",
             "community": "power",
             "author_index": 3,
-            "category": "civic"
+            "category": "civic",
+            "option_a": "Yes, upgrade now",
+            "option_b": "Wait, not urgent"
         },
         {
             "content": "Should parking be reduced to encourage public transit use?",
             "community": "transit",
             "author_index": 4,
-            "category": "civic"
+            "category": "civic",
+            "option_a": "Reduce parking",
+            "option_b": "Keep parking"
         },
         {
             "content": "Is it worth investing in smart traffic lights to reduce congestion?",
             "community": "roads",
             "author_index": 0,
-            "category": "civic"
+            "category": "civic",
+            "option_a": "Smart lights",
+            "option_b": "Status quo"
         },
     ]
     
@@ -127,7 +139,9 @@ def seed_database(db: Session = Depends(get_db)):
             user_id=users[dilemma_data["author_index"]].id,
             community_id=communities[dilemma_data["community"]].id,
             content=dilemma_data["content"],
-            category=dilemma_data["category"]
+            category=dilemma_data["category"],
+            option_a=dilemma_data.get("option_a", "Yes"),
+            option_b=dilemma_data.get("option_b", "No")
         )
         db.add(dilemma)
         dilemmas.append(dilemma)
@@ -164,14 +178,14 @@ def seed_database(db: Session = Depends(get_db)):
     
     # Create votes
     votes_data = [
-        {"dilemma_index": 0, "user_index": 0, "choice": "yes"},
-        {"dilemma_index": 0, "user_index": 2, "choice": "no"},
-        {"dilemma_index": 1, "user_index": 1, "choice": "yes"},
-        {"dilemma_index": 2, "user_index": 3, "choice": "yes"},
-        {"dilemma_index": 3, "user_index": 4, "choice": "yes"},
-        {"dilemma_index": 4, "user_index": 0, "choice": "no"},
-        {"dilemma_index": 5, "user_index": 2, "choice": "yes"},
-        {"dilemma_index": 5, "user_index": 3, "choice": "yes"},
+        {"dilemma_index": 0, "user_index": 0, "choice": "a"},
+        {"dilemma_index": 0, "user_index": 2, "choice": "b"},
+        {"dilemma_index": 1, "user_index": 1, "choice": "a"},
+        {"dilemma_index": 2, "user_index": 3, "choice": "a"},
+        {"dilemma_index": 3, "user_index": 4, "choice": "a"},
+        {"dilemma_index": 4, "user_index": 0, "choice": "b"},
+        {"dilemma_index": 5, "user_index": 2, "choice": "a"},
+        {"dilemma_index": 5, "user_index": 3, "choice": "a"},
     ]
     
     votes = []

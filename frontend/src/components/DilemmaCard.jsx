@@ -41,11 +41,13 @@ export default function DilemmaCard({ dilemma }) {
     },
   })
 
-  const yesCount = dilemma.votes_yes ?? 0
-  const noCount = dilemma.votes_no ?? 0
+  const yesCount = dilemma.votes_a ?? 0
+  const noCount = dilemma.votes_b ?? 0
   const total = yesCount + noCount || 1
   const yesPct = Math.round((yesCount / total) * 100)
-  const myVote = vote.data?.data?.dilemma?.user_vote ?? dilemma.user_vote
+  const myVote = dilemma.user_vote ?? null
+  const optionA = dilemma.option_a || "Yes"
+  const optionB = dilemma.option_b || "No"
 
   return (
     <motion.div
@@ -122,35 +124,35 @@ export default function DilemmaCard({ dilemma }) {
             />
           </div>
           <div className="flex justify-between text-sm text-[#888]">
-            <span className="text-[#ff6b4a] font-medium">Yes {yesPct}%</span>
+            <span className={`font-medium ${myVote === 'a' ? 'text-[#ff6b4a]' : ''}`}>{optionA} {yesPct}%</span>
             <span>{total === 1 ? 0 : total} votes</span>
-            <span>No {100 - yesPct}%</span>
+            <span className={`font-medium ${myVote === 'b' ? 'text-[#ff6b4a]' : ''}`}>{100 - yesPct}% {optionB}</span>
           </div>
         </div>
 
         {/* Vote buttons */}
         <div className="flex gap-3">
           <button
-            onClick={() => vote.mutate('yes')}
+            onClick={() => vote.mutate('a')}
             disabled={vote.isPending}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-base transition-colors disabled:opacity-50 ${
-              myVote === 'yes'
+              myVote === 'a'
                 ? 'bg-[#ff6b4a] text-white ring-2 ring-[#ff6b4a]/50'
                 : 'bg-[#ff6b4a]/10 text-[#ff6b4a] hover:bg-[#ff6b4a]/20'
             }`}
           >
-            <ThumbsUp size={18} fill={myVote === 'yes' ? 'currentColor' : 'none'} /> Yes
+            <ThumbsUp size={18} fill={myVote === 'a' ? 'currentColor' : 'none'} /> {optionA}
           </button>
           <button
-            onClick={() => vote.mutate('no')}
+            onClick={() => vote.mutate('b')}
             disabled={vote.isPending}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-base transition-colors disabled:opacity-50 ${
-              myVote === 'no'
+              myVote === 'b'
                 ? 'bg-white/20 text-white ring-2 ring-white/30'
                 : 'bg-white/5 text-[#f0f0f0] hover:bg-white/10'
             }`}
           >
-            <ThumbsDown size={18} fill={myVote === 'no' ? 'currentColor' : 'none'} /> No
+            <ThumbsDown size={18} fill={myVote === 'b' ? 'currentColor' : 'none'} /> {optionB}
           </button>
         </div>
 

@@ -36,6 +36,8 @@ class Dilemma(Base):
     community_id = Column(Integer, ForeignKey("communities.id", ondelete="SET NULL"), nullable=True)
     content      = Column(Text, nullable=False)
     category     = Column(String, nullable=False)  # personal | community | civic
+    option_a     = Column(String, nullable=True, default="Yes")
+    option_b     = Column(String, nullable=True, default="No")
     outcome      = Column(Text, nullable=True)
     image_url    = Column(String, nullable=True)
     created_at   = Column(DateTime(timezone=True), server_default=func.now())
@@ -50,7 +52,7 @@ class Vote(Base):
     id            = Column(Integer, primary_key=True, index=True)
     user_id       = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     dilemma_id    = Column(Integer, ForeignKey("dilemmas.id", ondelete="CASCADE"), nullable=False)
-    choice        = Column(String, nullable=False)  # yes | no
+    choice        = Column(String, nullable=False)  # a | b
     points_earned = Column(Integer, default=10)
     created_at    = Column(DateTime(timezone=True), server_default=func.now())
 

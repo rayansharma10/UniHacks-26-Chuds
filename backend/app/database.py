@@ -74,6 +74,18 @@ def migrate_database():
                 conn.commit()
                 print("Added community_id column to dilemmas table")
 
+            # Add option_a and option_b columns if missing
+            result = conn.execute(text("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'dilemmas' AND column_name = 'option_a'
+            """))
+            if not result.fetchone():
+                conn.execute(text("ALTER TABLE dilemmas ADD COLUMN option_a VARCHAR DEFAULT 'Yes'"))
+                conn.execute(text("ALTER TABLE dilemmas ADD COLUMN option_b VARCHAR DEFAULT 'No'"))
+                conn.commit()
+                print("Added option_a and option_b columns to dilemmas table")
+
     except Exception as e:
         print(f"Migration error: {e}")
         # Don't raise error to avoid crashing the app

@@ -112,14 +112,24 @@ class VoteBody(BaseModel):
 class OutcomeBody(BaseModel):
     outcome: str
 
-def fmt(d: models.Dilemma):
-    yes = sum(1 for v in d.votes if v.choice == "yes")
-    no  = sum(1 for v in d.votes if v.choice == "no")
+def fmt(d: models.Dilemma, current_user: Optional[models.User] = None, db: Optional[Session] = None):
+    a_count = sum(1 for v in d.votes if v.choice == "a")
+    b_count = sum(1 for v in d.votes if v.choice == "b")
+    total = a_count + b_count or 1
     
     # Fix old or local uploads pointing to R2
     final_image_url = d.image_url
     if final_image_url and final_image_url.startswith("/uploads/"):
         final_image_url = f"{R2_PUBLIC_URL}{final_image_url}"
+    
+    # Determine user's vote if provided
+    user_vote = None
+    if current_user and db:
+        existing_vote = db.query(models.Vote).filter_by(
+            user_id=current_user.id, 
+            dilemma_id=d.id
+        ).first()
+        user_vote = existing_vote.choice if existing_vote else None
         
     return {
         "id": d.id,
@@ -130,9 +140,13 @@ def fmt(d: models.Dilemma):
         "community_slug": d.community.slug if d.community else None,
         "content": d.content,
         "category": d.category,
+        "option_a": d.option_a or "Yes",
+        "option_b": d.option_b or "No",
         "outcome": d.outcome,
-        "votes_yes": yes,
-        "votes_no": no,
+        "votes_a": a_count,
+        "votes_b": b_count,
+        "total_votes": total - 1 if total > 0 else 0,
+        "user_vote": user_vote,
         "image_url": final_image_url,
         "created_at": d.created_at.isoformat(),
     }
@@ -145,25 +159,32 @@ def _is_admin_user(user: models.User) -> bool:
     return is_admin_user(user)
 
 @router.get("")
-def list_dilemmas(category: Optional[str] = None, community_slug: Optional[str] = None, db: Session = Depends(get_db)):
+def list_dilemmas(
+    category: Optional[str] = None, 
+    community_slug: Optional[str] = None, 
+    db: Session = Depends(get_db),
+    current_user: Optional[models.User] = None
+):
     q = db.query(models.Dilemma)
     if category:
         q = q.filter(models.Dilemma.category == category)
     if community_slug:
         q = q.join(models.Community).filter(models.Community.slug == community_slug)
     dilemmas = q.order_by(models.Dilemma.created_at.desc()).all()
-    return [fmt(d) for d in dilemmas]
+    return [fmt(d, current_user, db) for d in dilemmas]
 
 @router.get("/mine")
 def my_dilemmas(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     dilemmas = db.query(models.Dilemma).filter(models.Dilemma.user_id == current_user.id).order_by(models.Dilemma.created_at.desc()).all()
-    return [fmt(d) for d in dilemmas]
+    return [fmt(d, current_user, db) for d in dilemmas]
 
 @router.post("", status_code=201)
 async def create_dilemma(
     content: str = Form(...), 
     category: str = Form(...), 
     community_id: Optional[int] = Form(None),
+    option_a: Optional[str] = Form(None),
+    option_b: Optional[str] = Form(None),
     image: Optional[UploadFile] = File(None), 
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
@@ -181,12 +202,14 @@ async def create_dilemma(
             content=content, 
             category=category, 
             community_id=community_id,
+            option_a=option_a or "Yes",
+            option_b=option_b or "No",
             image_url=image_url
         )
         db.add(d)
         db.commit()
         db.refresh(d)
-        return fmt(d)
+        return fmt(d, current_user, db)
     except Exception as e:
         # Log the error for debugging
         import logging
@@ -216,15 +239,29 @@ def vote(dilemma_id: int, body: VoteBody, db: Session = Depends(get_db), current
     d = db.query(models.Dilemma).filter(models.Dilemma.id == dilemma_id).first()
     if not d:
         raise HTTPException(404, "Dilemma not found")
+    
     existing = db.query(models.Vote).filter_by(user_id=current_user.id, dilemma_id=dilemma_id).first()
+    
     if existing:
-        raise HTTPException(400, "Already voted")
-    v = models.Vote(user_id=current_user.id, dilemma_id=dilemma_id, choice=body.choice, points_earned=10)
-    db.add(v)
-    current_user.points += 10
-    db.commit()
-    db.refresh(d)
-    return {"points_earned": 10, "dilemma": fmt(d)}
+        # User already voted, update their vote (allow changing opinion)
+        if existing.choice == body.choice:
+            # Same choice, no action needed
+            db.refresh(d)
+            return {"points_earned": 0, "dilemma": fmt(d, current_user, db), "message": "Vote unchanged"}
+        else:
+            # Different choice, update the vote
+            existing.choice = body.choice
+            db.commit()
+            db.refresh(d)
+            return {"points_earned": 0, "dilemma": fmt(d, current_user, db), "message": "Vote updated"}
+    else:
+        # New vote
+        v = models.Vote(user_id=current_user.id, dilemma_id=dilemma_id, choice=body.choice, points_earned=10)
+        db.add(v)
+        current_user.points += 10
+        db.commit()
+        db.refresh(d)
+        return {"points_earned": 10, "dilemma": fmt(d, current_user, db), "message": "Vote recorded"}
 
 @router.patch("/{dilemma_id}/outcome")
 def set_outcome(dilemma_id: int, body: OutcomeBody, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
@@ -233,7 +270,7 @@ def set_outcome(dilemma_id: int, body: OutcomeBody, db: Session = Depends(get_db
         raise HTTPException(404, "Not found or not yours")
     d.outcome = body.outcome
     db.commit()
-    return fmt(d)
+    return fmt(d, current_user, db)
 
 @router.get("/{dilemma_id}/comments")
 def get_comments(dilemma_id: int, db: Session = Depends(get_db)):
