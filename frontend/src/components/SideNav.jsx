@@ -18,7 +18,7 @@ export default function SideNav() {
       {/* Logo */}
       <div className="flex items-center gap-2 px-3 mb-6">
         <Zap size={22} className="text-[#ff6b4a]" fill="#ff6b4a" />
-        <span className="text-xl font-bold text-[#ff6b4a]">Parallel</span>
+        <span className="text-xl font-bold text-[#ff6b4a]">Polis</span>
       </div>
 
       {links.map(({ to, icon: Icon, label }) => (

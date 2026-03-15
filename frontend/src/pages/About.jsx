@@ -129,7 +129,7 @@ export default function About() {
                 style={{ ...heroSubStyle, fontFamily: V }}
                 className="mt-6 text-xl md:text-3xl text-neutral-400 tracking-wide max-w-2xl mx-auto"
               >
-                Decide the Undecidable
+                Build Your Community
               </motion.p>
             </div>
 
