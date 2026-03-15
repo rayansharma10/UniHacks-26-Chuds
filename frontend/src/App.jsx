@@ -20,7 +20,7 @@ function RequireAuth({ children }) {
 
 function AppShell() {
   return (
-    <div className="flex min-h-screen bg-[#0f0f0f]">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
       <SideNav />
       <main className="flex-1 min-w-0 flex flex-col">
         <Routes>

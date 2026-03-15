@@ -14,11 +14,11 @@ export default function SideNav() {
   const navigate = useNavigate()
 
   return (
-    <aside className="hidden md:flex flex-col w-60 shrink-0 h-screen sticky top-0 border-r border-[#2a2a2a] px-4 py-6 gap-2">
+    <aside className="hidden md:flex flex-col w-60 shrink-0 h-screen sticky top-0 border-r px-4 py-6 gap-2" style={{ borderColor: 'var(--border)' }}>
       {/* Logo */}
       <div className="flex items-center gap-2 px-3 mb-6">
-        <Zap size={22} className="text-[#ff6b4a]" fill="#ff6b4a" />
-        <span className="text-xl font-bold text-[#ff6b4a]">Parallel</span>
+        <Zap size={22} style={{ color: 'var(--primary)' }} fill="var(--primary)" />
+        <span className="text-xl font-bold" style={{ color: 'var(--primary)' }}>Parallel</span>
       </div>
 
       {links.map(({ to, icon: Icon, label }) => (
@@ -28,8 +28,8 @@ export default function SideNav() {
           className={({ isActive }) =>
             `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
               isActive
-                ? 'bg-[#ff6b4a]/10 text-[#ff6b4a]'
-                : 'text-[#888] hover:text-white hover:bg-white/5'
+                ? 'nav-link-active'
+                : 'nav-link-inactive hover:text-white hover:bg-white/5'
             }`
           }
         >
@@ -44,14 +44,14 @@ export default function SideNav() {
         className={({ isActive }) =>
           `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
             isActive
-              ? 'bg-[#ff6b4a]/10 text-[#ff6b4a]'
-              : 'text-[#888] hover:text-white hover:bg-white/5'
+              ? ''
+              : 'hover:text-white hover:bg-white/5'
           }`
         }
       >
         <Sparkles size={18} />
         <span className="flex-1">AI Judge</span>
-        <span className="text-[10px] font-semibold bg-[#ff6b4a]/15 text-[#ff6b4a] px-1.5 py-0.5 rounded-full border border-[#ff6b4a]/20">
+        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full border" style={{ backgroundColor: 'var(--primary)', opacity: 0.15, color: 'var(--primary)', borderColor: 'var(--primary)', borderOpacity: 0.2 }}>
           SOON
         </span>
       </NavLink>
@@ -64,17 +64,18 @@ export default function SideNav() {
               onClick={() => navigate('/profile')}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-[#ff6b4a]/20 flex items-center justify-center font-bold text-[#ff6b4a] text-sm shrink-0">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0" style={{ backgroundColor: 'var(--primary)', opacity: 0.2, color: 'var(--primary)' }}>
                 {user.username[0].toUpperCase()}
               </div>
               <div className="overflow-hidden">
                 <p className="text-sm font-semibold truncate">{user.username}</p>
-                <p className="text-xs text-[#888]">{user.points ?? 0} pts</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{user.points ?? 0} pts</p>
               </div>
             </div>
             <button
               onClick={logout}
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-[#888] hover:text-white hover:bg-white/5 transition-colors w-full"
+              className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium hover:text-white hover:bg-white/5 transition-colors w-full"
+              style={{ color: 'var(--muted-foreground)' }}
             >
               <LogOut size={16} />
               Sign out
@@ -83,7 +84,8 @@ export default function SideNav() {
         ) : (
           <NavLink
             to="/login"
-            className="flex items-center justify-center px-3 py-2.5 rounded-xl bg-[#ff6b4a] text-white text-sm font-semibold hover:bg-[#cc5239] transition-colors"
+            className="flex items-center justify-center px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+            style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
           >
             Sign In
           </NavLink>
