@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Marquee } from '../components/ui/marquee';
-import { Globe } from '../components/ui/globe';
+import RotatingEarth from '../components/ui/wireframe-dotted-globe';
 import { AuroraBackground } from '../components/ui/aurora-background';
 import { Brain, Users, Shield, Flame } from 'lucide-react';
 
@@ -112,13 +112,13 @@ export default function About() {
 
           <motion.div
             style={{ opacity: section1Opacity, y: section1Y }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
           >
-            <div className="relative z-10 w-full max-w-[1200px] px-4 flex flex-col md:flex-row items-center justify-between gap-12 text-left">
-              <div className="flex-1 max-w-xl">
+            <div className="relative z-10 w-full max-w-[1200px] px-4 flex flex-col items-center justify-center gap-8 text-center">
+              <div className="flex-1 max-w-2xl">
                 <motion.h1
                   style={{ ...heroTitleStyle, fontFamily: V }}
-                  className="text-[5rem] md:text-[9rem] font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-neutral-500 text-left"
+                  className="text-[5rem] md:text-[9rem] font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-neutral-500"
                 >
                   POLIS
                 </motion.h1>
@@ -130,10 +130,8 @@ export default function About() {
                 </motion.p>
               </div>
 
-              <div className="flex-1 flex items-center justify-center">
-                <div className="w-[280px] h-[280px] md:w-[360px] md:h-[360px]">
-                  <Globe className="w-full h-full" />
-                </div>
+              <div className="flex items-center justify-center w-full">
+                <RotatingEarth className="w-[400px] h-[300px] md:w-[600px] md:h-[450px]" />
               </div>
 
               <motion.div
