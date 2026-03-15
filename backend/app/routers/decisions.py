@@ -32,6 +32,28 @@ def upload_to_r2(data: bytes, key: str, content_type: str) -> str:
 router = APIRouter()
 
 
+@router.get("/dilemmas/test-connection")
+def test_r2_connection():
+    """Test R2 connection using boto3"""
+    try:
+        import boto3
+        from botocore.exceptions import ClientError
+        if not all([R2_ACCOUNT_ID, R2_ACCESS_KEY, R2_SECRET_KEY]):
+            return {"success": False, "error": "Missing R2 configuration"}
+        s3 = boto3.client(
+            's3',
+            endpoint_url=f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+            aws_access_key_id=R2_ACCESS_KEY,
+            aws_secret_access_key=R2_SECRET_KEY,
+            region_name='auto',
+            config=Config(signature_version='s3v4')
+        )
+        response = s3.list_objects_v2(Bucket=R2_BUCKET, MaxKeys=1)
+        buckets = [obj['Key'] for obj in response.get('Contents', [])]
+        return {"success": True, "message": "R2 connection successful", "buckets": buckets}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 class DilemmaCreate(BaseModel):
     content: str
     category: str
