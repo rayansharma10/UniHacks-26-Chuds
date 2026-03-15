@@ -73,15 +73,15 @@ export default function RightPanel() {
       <div className="h-px bg-[#2a2a2a]" />
 
       {/* Sidebar images */}
-      <div className="mt-auto pt-2 flex gap-2">
+      <div className="mt-auto pt-2 flex gap-3">
         <img
-          src={sidebarImage}
+          src={railImage}
           alt=""
           className="w-2/5 rounded-xl object-cover opacity-80"
           style={{ maxHeight: '180px' }}
         />
         <img
-          src={railImage}
+          src={sidebarImage}
           alt=""
           className="w-3/5 rounded-xl object-cover opacity-80"
           style={{ maxHeight: '180px' }}
