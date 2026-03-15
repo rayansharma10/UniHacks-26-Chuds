@@ -65,13 +65,16 @@ export default function Post() {
         onChange={(e) => setContent(e.target.value)}
         placeholder="What's your dilemma? Be specific — the community will vote on it."
         rows={6}
-        className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 text-sm text-[#f0f0f0] placeholder-[#555] resize-none focus:outline-none focus:border-[#ff6b4a] transition-colors"
+        className="border rounded-xl p-4 text-sm resize-none focus:outline-none transition-colors"
+        style={{ backgroundColor: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+        onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+        onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
       />
 
       <div className="flex flex-col gap-2">
         <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={handleImage} />
         {preview ? (
-          <div className="relative rounded-xl overflow-hidden border border-[#2a2a2a]">
+          <div className="relative rounded-xl overflow-hidden border" style={{ borderColor: 'var(--border)' }}>
             <img src={preview} alt="preview" className="w-full max-h-64 object-cover" />
             <button
               onClick={removeImage}
@@ -84,7 +87,10 @@ export default function Post() {
           <button
             type="button"
             onClick={() => fileRef.current.click()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#2a2a2a] text-[#555] hover:text-white hover:border-[#ff6b4a]/50 transition-colors text-sm w-fit"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed transition-colors text-sm w-fit"
+            style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+            onMouseEnter={(e) => { e.target.style.color = 'var(--foreground)'; e.target.style.borderColor = 'var(--primary)'; e.target.style.opacity = '0.5'; }}
+            onMouseLeave={(e) => { e.target.style.color = 'var(--muted-foreground)'; e.target.style.borderColor = 'var(--border)'; e.target.style.opacity = '1'; }}
           >
             <ImagePlus size={16} /> Attach image
           </button>
@@ -92,17 +98,19 @@ export default function Post() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-sm text-[#888] font-medium">Category</p>
+        <p className="text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>Category</p>
         <div className="flex gap-2">
           {CATEGORIES.map((c) => (
             <button
               key={c}
               onClick={() => setCategory(c)}
               className={`flex-1 py-2.5 rounded-xl text-sm font-medium capitalize transition-colors ${
-                category === c
-                  ? 'bg-[#ff6b4a] text-white'
-                  : 'bg-[#1a1a1a] text-[#888] hover:text-white border border-[#2a2a2a]'
+                category === c ? '' : 'hover:text-white border'
               }`}
+              style={category === c
+                ? { backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }
+                : { backgroundColor: 'var(--card)', color: 'var(--muted-foreground)', borderColor: 'var(--border)' }
+              }
             >
               {c}
             </button>
@@ -111,11 +119,14 @@ export default function Post() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-sm text-[#888] font-medium">Post to Community</p>
+        <p className="text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>Post to Community</p>
         <select
           value={selectedCommunity ?? ''}
           onChange={(e) => setSelectedCommunity(e.target.value ? parseInt(e.target.value) : null)}
-          className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-3 text-sm text-[#f0f0f0] focus:outline-none focus:border-[#ff6b4a] transition-colors appearance-none"
+          className="border rounded-xl p-3 text-sm focus:outline-none transition-colors appearance-none"
+          style={{ backgroundColor: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+          onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+          onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
         >
           <option value="">Global / No Community</option>
           {communities.map((c) => (
@@ -127,7 +138,7 @@ export default function Post() {
       </div>
 
       {category === 'civic' && (
-        <div className="bg-[#ff6b4a]/10 border border-[#ff6b4a]/20 rounded-xl p-4 text-sm text-[#f0f0f0]">
+        <div className="rounded-xl p-4 text-sm border" style={{ backgroundColor: 'var(--primary)', opacity: 0.1, borderColor: 'var(--primary)', borderOpacity: 0.2, color: 'var(--foreground)' }}>
           🏛️ Civic dilemmas get synthesised by AI into formal recommendations for government teams.
         </div>
       )}
@@ -136,7 +147,10 @@ export default function Post() {
         <button
           onClick={() => testConnection.mutate()}
           disabled={testConnection.isPending}
-          className="flex-1 py-3 rounded-xl bg-[#2a2a2a] text-[#888] font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity hover:bg-[#3a3a3a] hover:text-white"
+          className="flex-1 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity"
+          style={{ backgroundColor: 'var(--secondary)', color: 'var(--muted-foreground)' }}
+          onMouseEnter={(e) => { e.target.style.backgroundColor = 'var(--input)'; e.target.style.color = 'var(--foreground)'; }}
+          onMouseLeave={(e) => { e.target.style.backgroundColor = 'var(--secondary)'; e.target.style.color = 'var(--muted-foreground)'; }}
         >
           {testConnection.isPending && <Loader2 size={16} className="animate-spin" />}
           Test R2 Connection
@@ -154,7 +168,8 @@ export default function Post() {
       <button
         onClick={() => post.mutate()}
         disabled={!content.trim() || post.isPending}
-        className="py-3 rounded-xl bg-[#ff6b4a] text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity hover:bg-[#cc5239]"
+        className="py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity"
+        style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
       >
         {post.isPending && <Loader2 size={16} className="animate-spin" />}
         Post Dilemma

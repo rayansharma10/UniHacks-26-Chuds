@@ -150,3 +150,14 @@ body {
   from { background-position: 50% 50%, 50% 50%; }
   to { background-position: 350% 50%, 350% 50%; }
 }
+
+/* NavLink active state styles */
+.nav-link-active {
+  background-color: var(--primary);
+  opacity: 0.1;
+  color: var(--primary);
+}
+
+.nav-link-inactive {
+  color: var(--muted-foreground);
+}

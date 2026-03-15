@@ -49,7 +49,8 @@ export default function DilemmaCard({ dilemma }) {
 
   return (
     <motion.div
-      className="bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a] overflow-hidden flex flex-col md:flex-row md:min-h-[480px]"
+      className="rounded-2xl border overflow-hidden flex flex-col md:flex-row md:min-h-[480px]"
+      style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -59,12 +60,12 @@ export default function DilemmaCard({ dilemma }) {
         {/* Author */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-[#ff6b4a]/20 flex items-center justify-center font-bold text-[#ff6b4a] text-lg shrink-0">
+            <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-lg shrink-0" style={{ backgroundColor: 'var(--primary)', opacity: 0.2, color: 'var(--primary)' }}>
               {dilemma.username?.[0]?.toUpperCase() ?? '?'}
             </div>
             <div>
               <p className="font-semibold">{dilemma.username ?? 'anonymous'}</p>
-              <p className="text-xs text-[#888]">
+              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
                 {new Date(dilemma.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
               </p>
             </div>
@@ -74,7 +75,7 @@ export default function DilemmaCard({ dilemma }) {
             {canDelete && (
               confirmDelete ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#888]">Delete?</span>
+                  <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Delete?</span>
                   <button
                     onClick={() => deleteDilemma.mutate()}
                     disabled={deleteDilemma.isPending}
@@ -84,7 +85,7 @@ export default function DilemmaCard({ dilemma }) {
                   </button>
                   <button
                     onClick={() => setConfirmDelete(false)}
-                    className="text-xs text-[#888] hover:text-white transition-colors"
+                    className="text-xs transition-colors" style={{ color: 'var(--muted-foreground)' }}
                   >
                     No
                   </button>
@@ -92,7 +93,7 @@ export default function DilemmaCard({ dilemma }) {
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="p-1.5 rounded-lg text-[#555] hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                  className="p-1.5 rounded-lg hover:text-red-400 hover:bg-red-400/10 transition-colors" style={{ color: 'var(--muted-foreground)' }}
                 >
                   <Trash2 size={14} />
                 </button>
@@ -109,20 +110,20 @@ export default function DilemmaCard({ dilemma }) {
           <img
             src={dilemma.image_url}
             alt="dilemma"
-            className="w-full max-h-72 object-cover rounded-xl border border-[#2a2a2a]"
+            className="w-full max-h-72 object-cover rounded-xl border" style={{ borderColor: 'var(--border)' }}
           />
         )}
 
         {/* Vote bar */}
         <div className="flex flex-col gap-2">
-          <div className="h-2.5 rounded-full bg-[#2a2a2a] overflow-hidden">
+          <div className="h-2.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border)' }}>
             <div
-              className="h-full bg-[#ff6b4a] rounded-full transition-all duration-500"
-              style={{ width: `${yesPct}%` }}
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${yesPct}%`, backgroundColor: 'var(--primary)' }}
             />
           </div>
-          <div className="flex justify-between text-sm text-[#888]">
-            <span className="text-[#ff6b4a] font-medium">Yes {yesPct}%</span>
+          <div className="flex justify-between text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            <span className="font-medium" style={{ color: 'var(--primary)' }}>Yes {yesPct}%</span>
             <span>{total === 1 ? 0 : total} votes</span>
             <span>No {100 - yesPct}%</span>
           </div>
@@ -135,9 +136,13 @@ export default function DilemmaCard({ dilemma }) {
             disabled={vote.isPending}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-base transition-colors disabled:opacity-50 ${
               myVote === 'yes'
-                ? 'bg-[#ff6b4a] text-white ring-2 ring-[#ff6b4a]/50'
-                : 'bg-[#ff6b4a]/10 text-[#ff6b4a] hover:bg-[#ff6b4a]/20'
+                ? 'ring-2'
+                : ''
             }`}
+            style={myVote === 'yes'
+              ? { backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', ringColor: 'var(--primary)', opacity: 0.5 }
+              : { backgroundColor: 'var(--primary)', opacity: 0.1, color: 'var(--primary)' }
+            }
           >
             <ThumbsUp size={18} fill={myVote === 'yes' ? 'currentColor' : 'none'} /> Yes
           </button>
@@ -146,9 +151,13 @@ export default function DilemmaCard({ dilemma }) {
             disabled={vote.isPending}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-base transition-colors disabled:opacity-50 ${
               myVote === 'no'
-                ? 'bg-white/20 text-white ring-2 ring-white/30'
-                : 'bg-white/5 text-[#f0f0f0] hover:bg-white/10'
+                ? 'ring-2'
+                : ''
             }`}
+            style={myVote === 'no'
+              ? { backgroundColor: 'var(--secondary)', opacity: 0.2, color: 'var(--foreground)', ringColor: 'var(--border)' }
+              : { backgroundColor: 'var(--secondary)', opacity: 0.05, color: 'var(--foreground)' }
+            }
           >
             <ThumbsDown size={18} fill={myVote === 'no' ? 'currentColor' : 'none'} /> No
           </button>
@@ -156,20 +165,20 @@ export default function DilemmaCard({ dilemma }) {
 
         {/* Outcome */}
         {dilemma.outcome && (
-          <div className="bg-[#ff6b4a]/10 border border-[#ff6b4a]/20 rounded-xl p-4">
-            <span className="text-[#ff6b4a] font-semibold">What happened: </span>
+          <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--primary)', opacity: 0.1, borderColor: 'var(--primary)', borderOpacity: 0.2 }}>
+            <span className="font-semibold" style={{ color: 'var(--primary)' }}>What happened: </span>
             <span className="text-sm">{dilemma.outcome}</span>
           </div>
         )}
       </div>
 
       {/* ── DIVIDER ── */}
-      <div className="hidden md:block w-px bg-[#2a2a2a] self-stretch" />
-      <div className="md:hidden h-px bg-[#2a2a2a] mx-8" />
+      <div className="hidden md:block w-px self-stretch" style={{ backgroundColor: 'var(--border)' }} />
+      <div className="md:hidden h-px mx-8" style={{ backgroundColor: 'var(--border)' }} />
 
       {/* ── RIGHT: comments ── */}
       <div className="w-full md:w-96 shrink-0 flex flex-col p-6 gap-4">
-        <p className="text-xs font-semibold text-[#888] uppercase tracking-wide">
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
           Comments {comments.length > 0 && `· ${comments.length}`}
         </p>
 
@@ -177,20 +186,20 @@ export default function DilemmaCard({ dilemma }) {
         <div className="overflow-y-auto flex flex-col gap-4 pr-1" style={{ height: '340px' }}>
           {commentsLoading && (
             <div className="flex justify-center py-8">
-              <Loader2 size={20} className="animate-spin text-[#ff6b4a]" />
+              <Loader2 size={20} className="animate-spin" style={{ color: 'var(--primary)' }} />
             </div>
           )}
           {!commentsLoading && comments.length === 0 && (
-            <p className="text-sm text-[#555] text-center py-8">No comments yet.</p>
+            <p className="text-sm text-center py-8" style={{ color: 'var(--muted-foreground)' }}>No comments yet.</p>
           )}
           {comments.map((c) => (
             <div key={c.id} className="flex gap-3">
-              <div className="w-7 h-7 rounded-full bg-[#ff6b4a]/20 flex items-center justify-center text-xs font-bold text-[#ff6b4a] shrink-0 mt-0.5">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5" style={{ backgroundColor: 'var(--primary)', opacity: 0.2, color: 'var(--primary)' }}>
                 {c.username[0].toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-sm font-semibold text-[#f0f0f0]">{c.username} </span>
-                <span className="text-sm text-[#aaa] leading-relaxed">{c.content}</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{c.username} </span>
+                <span className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{c.content}</span>
               </div>
             </div>
           ))}
@@ -198,18 +207,22 @@ export default function DilemmaCard({ dilemma }) {
 
         {/* Comment input */}
         {user ? (
-          <div className="flex gap-2 pt-3 border-t border-[#2a2a2a]">
+          <div className="flex gap-2 pt-3 border-t" style={{ borderColor: 'var(--border)' }}>
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && draft.trim() && postComment.mutate()}
               placeholder="Add a comment…"
-              className="flex-1 min-w-0 bg-[#242424] border border-[#2a2a2a] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#ff6b4a] transition-colors placeholder-[#555]"
+              className="flex-1 min-w-0 border rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-colors"
+              style={{ backgroundColor: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
             />
             <button
               onClick={() => postComment.mutate()}
               disabled={!draft.trim() || postComment.isPending}
-              className="p-2.5 rounded-xl bg-[#ff6b4a] text-white disabled:opacity-40 hover:bg-[#cc5239] transition-colors shrink-0"
+              className="p-2.5 rounded-xl disabled:opacity-40 transition-colors shrink-0"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >
               {postComment.isPending
                 ? <Loader2 size={16} className="animate-spin" />
@@ -218,7 +231,7 @@ export default function DilemmaCard({ dilemma }) {
             </button>
           </div>
         ) : (
-          <p className="text-xs text-[#555] text-center pt-3 border-t border-[#2a2a2a]">
+          <p className="text-xs text-center pt-3 border-t" style={{ color: 'var(--muted-foreground)', borderColor: 'var(--border)' }}>
             Sign in to comment.
           </p>
         )}
