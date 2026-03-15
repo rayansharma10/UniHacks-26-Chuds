@@ -107,41 +107,45 @@ export default function About() {
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage:'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
 
         {/* ── Section 1: Hero ── */}
-        <motion.div
-          style={{ opacity: section1Opacity, scale: section1Scale, y: section1Y }}
-          className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
-        >
-          <AuroraBackground className="absolute inset-0 z-0 h-screen w-full rounded-none px-4">
-            <div className="absolute inset-x-0 top-[20%] md:top-[10%] z-0 flex items-center justify-center opacity-70 mix-blend-screen overflow-hidden pointer-events-none w-full max-w-[1400px] mx-auto aspect-[1/1] overflow-visible">
-              <div className="w-full h-full pointer-events-auto flex items-center justify-center">
-                <Globe className="scale-[2] md:scale-[2.5] w-full h-full" />
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden border-x border-[#ffffff05]">
+          <AuroraBackground className="absolute inset-0 z-0 h-screen w-full rounded-none px-4" />
+
+          <motion.div
+            style={{ opacity: section1Opacity, y: section1Y }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          >
+            <div className="relative z-10 w-full max-w-[1200px] px-4 flex flex-col md:flex-row items-center justify-between gap-12 text-left">
+              <div className="flex-1 max-w-xl">
+                <motion.h1
+                  style={{ ...heroTitleStyle, fontFamily: V }}
+                  className="text-[5rem] md:text-[9rem] font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-neutral-500 text-left"
+                >
+                  POLIS
+                </motion.h1>
+                <motion.p
+                  style={{ ...heroSubStyle, fontFamily: V }}
+                  className="mt-6 text-xl md:text-3xl text-neutral-400 tracking-wide max-w-2xl"
+                >
+                  Decide the Undecidable
+                </motion.p>
               </div>
-            </div>
 
-            <div className="relative z-10 w-full">
-              <motion.h1
-                style={{ ...heroTitleStyle, fontFamily: V }}
-                className="text-[5rem] md:text-[9rem] font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-neutral-500"
-              >
-                POLIS
-              </motion.h1>
-              <motion.p
-                style={{ ...heroSubStyle, fontFamily: V }}
-                className="mt-6 text-xl md:text-3xl text-neutral-400 tracking-wide max-w-2xl mx-auto"
-              >
-                Decide the Undecidable
-              </motion.p>
-            </div>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-[280px] h-[280px] md:w-[360px] md:h-[360px]">
+                  <Globe className="w-full h-full" />
+                </div>
+              </div>
 
-            <motion.div
-              style={heroScrollLabelStyle}
-              className="absolute bottom-12 flex flex-col items-center gap-4 z-10"
-            >
-              <span style={{ fontFamily: V }} className="text-xs uppercase tracking-[0.3em] text-neutral-500 font-medium">Scroll Down</span>
-              <div className="w-[1px] h-20 bg-gradient-to-b from-neutral-500 to-transparent" />
-            </motion.div>
-          </AuroraBackground>
-        </motion.div>
+              <motion.div
+                style={heroScrollLabelStyle}
+                className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-10"
+              >
+                <span style={{ fontFamily: V }} className="text-xs uppercase tracking-[0.3em] text-neutral-500 font-medium">Scroll Down</span>
+                <div className="w-[1px] h-20 bg-gradient-to-b from-neutral-500 to-transparent" />
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
 
         {/* ── Section 2: Marquee ── */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-12 lg:px-24 text-center pointer-events-none overflow-hidden">
